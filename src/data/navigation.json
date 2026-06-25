@@ -8,6 +8,7 @@
     { "id": "systems-integration", "label": "03 Integraciones", "shortLabel": "Integraciones", "route": "/systems-integration/", "part": 3 },
     { "id": "data-modeling", "label": "04 Datos", "shortLabel": "Datos", "route": "/data-modeling/", "part": 4 },
     { "id": "ai-strategy", "label": "05 Estrategia de IA", "shortLabel": "Estrategia de IA", "route": "/ai-strategy/", "part": 5 },
-    { "id": "executive-scenario", "label": "06 Escenario ejecutivo", "shortLabel": "Escenario ejecutivo", "route": "/executive-scenario/", "part": 6 }
+    { "id": "executive-scenario", "label": "06 Escenario ejecutivo", "shortLabel": "Escenario ejecutivo", "route": "/executive-scenario/", "part": 6 },
+    { "id": "inflightos", "label": "InflightOS", "shortLabel": "InflightOS", "route": "/inflightos/", "part": 6, "icon": "brain" }
   ]
 }

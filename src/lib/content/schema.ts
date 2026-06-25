@@ -8,11 +8,12 @@ const unique = (values: string[]) => new Set(values).size === values.length;
 export const navigationSchema = z.object({
   brand: z.literal("InflightOS"),
   subtitle: z.literal("Evaluación estratégica"),
-  items: z.array(z.object({ id: z.string().min(1), label: z.string().min(1), shortLabel: z.string().min(1), route: z.string().regex(/^\/$|^\/(architecture-review|roadmap|systems-integration|data-modeling|ai-strategy|executive-scenario)\/$/), part: z.number().int().min(0).max(6) }).strict()).length(7),
+  items: z.array(z.object({ id: z.string().min(1), label: z.string().min(1), shortLabel: z.string().min(1), route: z.string().regex(/^\/$|^\/(architecture-review|roadmap|systems-integration|data-modeling|ai-strategy|executive-scenario|inflightos)\/$/), part: z.number().int().min(0).max(6), icon: z.literal("brain").optional() }).strict()).length(8),
 }).strict().superRefine((value, ctx) => {
   if (!unique(value.items.map((item) => item.id))) ctx.addIssue({ code: "custom", message: "Duplicate navigation ids" });
   if (!unique(value.items.map((item) => item.route))) ctx.addIssue({ code: "custom", message: "Duplicate navigation routes" });
-  if (value.items.map((item) => item.part).join(",") !== "0,1,2,3,4,5,6") ctx.addIssue({ code: "custom", message: "Navigation parts must be 0..6" });
+  if (value.items.slice(0, 7).map((item) => item.part).join(",") !== "0,1,2,3,4,5,6") ctx.addIssue({ code: "custom", message: "Navigation parts must be 0..6 before extra items" });
+  if (value.items.at(-1)?.id !== "inflightos" || value.items.at(-1)?.icon !== "brain" || value.items.at(-1)?.part !== 6) ctx.addIssue({ code: "custom", message: "InflightOS extra navigation item must close the menu with brain icon" });
 });
 
 export const homeSchema = z.object({ title: z.string().min(1), intro: z.string().min(1), systems: z.array(z.string().min(1)).min(12), parts: z.array(itemSchema).length(6), recommendation: z.string().min(1) }).strict();

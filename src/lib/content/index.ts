@@ -22,8 +22,9 @@ export function getRouteProgress(pathname: string) {
   const normalized = normalizePath(pathname);
   const index = parsed.navigation.items.findIndex((item) => isRouteActive(item.route, normalized));
   const item = parsed.navigation.items[index] ?? parsed.navigation.items[0];
-  const percent = item.part === 0 ? 0 : Math.round((item.part / 6) * 100);
-  return { item, index, percent, previous: parsed.navigation.items[index - 1], next: parsed.navigation.items[index + 1] };
+  const totalParts = Math.max(...parsed.navigation.items.map((navigationItem) => navigationItem.part));
+  const percent = item.part === 0 ? 0 : Math.round((item.part / totalParts) * 100);
+  return { item, index, percent, totalParts, previous: parsed.navigation.items[index - 1], next: parsed.navigation.items[index + 1] };
 }
 
 export function getPreviousNext(route: string): { previous?: NavigationItem; next?: NavigationItem } {

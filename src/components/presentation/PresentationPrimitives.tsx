@@ -17,3 +17,27 @@ export function NumberList({ items }: { items: ContentItem[] }) {
 export function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return <section className="section" style={{ marginTop: 18 }}><header style={{ marginBottom: 16 }}><div className="kicker">{title}</div>{description ? <p>{description}</p> : null}</header>{children}</section>;
 }
+
+export function PresentationSlide({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <section className={className ? `presentation-slide ${className}` : "presentation-slide"} data-presentation-slide>{children}</section>;
+}
+
+export function PresentationSlideHeader({ actions, eyebrow, meta, title, thesis }: { actions?: React.ReactNode; eyebrow: string; meta?: React.ReactNode; title: string; thesis?: string }) {
+  return <header className="presentation-slide-head"><div className="presentation-slide-title"><div className="eyebrow">{eyebrow}</div><h1>{title}</h1>{thesis ? <p className="presentation-thesis">{thesis}</p> : null}</div><div className="presentation-slide-side">{meta ? <div className="presentation-slide-meta">{meta}</div> : null}{actions}</div></header>;
+}
+
+export function PresentationSlideBody({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={className ? `presentation-slide-body ${className}` : "presentation-slide-body"}>{children}</div>;
+}
+
+export function PresentationSlideFooter({ children }: { children: React.ReactNode }) {
+  return <footer className="presentation-slide-foot">{children}</footer>;
+}
+
+export function PresentationCallout({ children, tone = "info" }: { children: React.ReactNode; tone?: "info" | "danger" | "success" }) {
+  return <div className={`presentation-callout ${tone}`}>{children}</div>;
+}
+
+export function CompactList({ items, limit = 3 }: { items: string[]; limit?: number }) {
+  return <ul className="compact-list">{items.slice(0, limit).map((item) => <li key={item}>{item}</li>)}</ul>;
+}

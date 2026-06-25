@@ -13,6 +13,7 @@ export type NavigationItem = {
   shortLabel: string;
   route: string;
   part: number;
+  icon?: "brain";
 };
 
 export type NavigationContent = {

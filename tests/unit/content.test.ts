@@ -8,9 +8,10 @@ describe("presentation content contract", () => {
 
   it("validates navigation order and routes", () => {
     const items = getNavigationItems();
-    expect(items.map((item) => item.part)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    expect(items.map((item) => item.part)).toEqual([0, 1, 2, 3, 4, 5, 6, 6]);
     expect(new Set(items.map((item) => item.route)).size).toBe(items.length);
-    expect(items.map((item) => item.route)).toEqual(["/", "/architecture-review/", "/roadmap/", "/systems-integration/", "/data-modeling/", "/ai-strategy/", "/executive-scenario/"]);
+    expect(items.map((item) => item.route)).toEqual(["/", "/architecture-review/", "/roadmap/", "/systems-integration/", "/data-modeling/", "/ai-strategy/", "/executive-scenario/", "/inflightos/"]);
+    expect(items.at(-1)?.icon).toBe("brain");
   });
 
   it("calculates progress and previous/next", () => {
@@ -20,6 +21,7 @@ describe("presentation content contract", () => {
     expect(isRouteActive("/roadmap/", "/roadmap/automatizacion-de-vuelos/")).toBe(true);
     expect(getPreviousNext("/architecture-review/").next?.route).toBe("/roadmap/");
     expect(getPreviousNext("/executive-scenario/").previous?.route).toBe("/ai-strategy/");
+    expect(getPreviousNext("/executive-scenario/").next?.route).toBe("/inflightos/");
   });
 
   it("keeps required architecture counts", () => {
@@ -88,6 +90,59 @@ describe("roadmap catalog contract", () => {
     expect(getRoadmapProjectNavigation(projects[0].slug).next?.slug).toBe(projects[1].slug);
     expect(getRoadmapProjectNavigation(projects[7].slug).next).toBeUndefined();
     expect(getRoadmapBySlug(projects[3].slug)?.order).toBe(4);
+  });
+
+  it("represents every essential roadmap field in slide, modal or dialog detail", () => {
+    const visibility = {
+      strategicObjective: "modal:objective",
+      northStarMetric: "modal:metrics",
+      supportingMetrics: "modal:metrics",
+      principles: "modal:principles",
+      scope: "modal:scope",
+      horizons: "slide:road",
+      workstreams: "modal:horizon",
+      activities: "modal:horizon",
+      deliverables: "modal:horizon",
+      dependencies: "modal:dependencies+horizon",
+      team: "modal:team+horizon",
+      gate: "slide:summary+modal:horizon",
+      metrics: "slide:summary+modal:horizon",
+      risks: "modal:risks+horizon",
+      executiveSummary: "modal:executive",
+      finalMessage: "modal:executive",
+      sourceDocument: "footer+modal:executive",
+    } as const;
+    expect(Object.values(visibility).every(Boolean)).toBe(true);
+    for (const project of projects) {
+      expect(project.strategicObjective).toBeTruthy();
+      expect(project.northStarMetric.title).toBeTruthy();
+      expect(project.supportingMetrics.length).toBeGreaterThan(0);
+      expect(project.principles.length).toBeGreaterThan(0);
+      expect(project.scope.included.length).toBeGreaterThan(0);
+      expect(project.scope.deferred.length).toBeGreaterThan(0);
+      expect(project.dependencies.length).toBeGreaterThan(0);
+      expect(project.team.length).toBeGreaterThan(0);
+      expect(project.risks.length).toBeGreaterThan(0);
+      expect(project.executiveSummary.length).toBe(4);
+      for (const horizon of project.horizons) {
+        expect(horizon.id).toMatch(/-(30|90|180|365)$/);
+        expect(horizon.workstreams.length).toBeGreaterThan(0);
+        for (const workstream of horizon.workstreams) {
+          expect(workstream.activities.length).toBeGreaterThan(0);
+          expect(workstream.deliverable).toBeTruthy();
+        }
+        expect(horizon.dependencies.length).toBeGreaterThan(0);
+        expect(horizon.team.length).toBeGreaterThan(0);
+        expect(horizon.gate.length).toBeGreaterThan(0);
+        expect(horizon.metrics.length).toBeGreaterThan(0);
+        expect(horizon.risks.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("keeps the eight roadmap action labels unique", () => {
+    const labels = ["Objetivo", "Métricas", "Alcance", "Principios", "Dependencias", "Equipo", "Riesgos", "Resumen"];
+    expect(new Set(labels).size).toBe(8);
   });
 });
 

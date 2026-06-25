@@ -1,6 +1,6 @@
-import { Bot, Check, Database, GitBranch, Mail, Maximize, Menu, Play, Route, X } from "lucide-react";
+import { Bot, BrainCircuit, Check, Database, GitBranch, Mail, Maximize, Menu, Play, Route, X } from "lucide-react";
 
-export type IconName = "menu" | "close" | "play" | "road" | "arch" | "data" | "event" | "ai" | "fullscreen" | "check";
+export type IconName = "menu" | "close" | "play" | "road" | "arch" | "data" | "event" | "ai" | "brain" | "fullscreen" | "check";
 
 export function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
   const IconComponent = icons[name];
@@ -17,6 +17,7 @@ const icons = {
   data: Database,
   event: Mail,
   ai: Bot,
+  brain: BrainCircuit,
   fullscreen: Maximize,
   check: Check,
 } satisfies Record<IconName, typeof Menu>;

@@ -41,12 +41,12 @@ export type RoadmapLayout = {
   path: string;
 };
 
-const CARD_W = 286;
-const CARD_H = 148;
+const CARD_W = 246;
+const CARD_H = 124;
 
 export function computeRoadmapLayout({ items, width, density, variant }: { items: RoadmapLayoutItem[]; width: number; density: RoadmapDensity; variant: RoadmapVariant }): RoadmapLayout {
   const safeWidth = Number.isFinite(width) ? Math.max(320, width) : 960;
-  const mobile = safeWidth < 680;
+  const mobile = safeWidth < 340;
   const count = items.length;
   const minWidth = mobile ? safeWidth : density === "dense" ? 940 : 1080;
   const canvasWidth = Math.max(safeWidth, minWidth);
@@ -57,9 +57,9 @@ export function computeRoadmapLayout({ items, width, density, variant }: { items
   const minPerRow = count <= 1 ? 1 : mobile ? 1 : 2;
   const perRow = Math.max(minPerRow, Math.min(maxPerRow, Math.floor(usable / slot) + 1));
   const rows = Math.max(1, Math.ceil(Math.max(count, 1) / perRow));
-  const topPad = mobile ? 190 : 250;
-  const rowPitch = mobile ? 330 : density === "dense" ? 410 : 470;
-  const bottomPad = mobile ? 205 : 255;
+  const topPad = mobile ? 190 : density === "dense" ? 185 : 230;
+  const rowPitch = mobile ? 330 : density === "dense" ? 340 : 430;
+  const bottomPad = mobile ? 205 : density === "dense" ? 205 : 245;
   const height = Math.max(360, topPad + (rows - 1) * rowPitch + bottomPad);
   const points: RoadmapPoint[] = [];
 
@@ -78,8 +78,9 @@ export function computeRoadmapLayout({ items, width, density, variant }: { items
   }
 
   const placed: RoadmapRect[] = [];
+  const stationBoxes = points.map((point) => rectFromCenter(point.x, point.y, 144, 144));
   const cards = points.map((point) => {
-    const card = chooseBestCardPosition(point, { width: canvasWidth, height, density, mobile }, placed);
+    const card = chooseBestCardPosition(point, { width: canvasWidth, height, density, mobile }, placed, stationBoxes);
     placed.push(card.box);
     return { ...card, id: point.id };
   });
@@ -119,15 +120,18 @@ export function getCandidateCardPositions(point: RoadmapPoint, options: { densit
     ];
   }
   const preferredSide = (point.indexInRow + point.row) % 2 === 0 ? -1 : 1;
-  const yDist = options.density === "dense" ? 132 : 158;
-  const far = options.density === "dense" ? 188 : 220;
+  const yDist = options.density === "dense" ? 158 : 178;
+  const far = options.density === "dense" ? 224 : 244;
+  const diagonal = options.density === "dense" ? 174 : 190;
   return [
     { x: point.x, y: point.y + preferredSide * yDist, side: preferredSide as -1 | 1, rank: 0 },
     { x: point.x, y: point.y - preferredSide * yDist, side: -preferredSide as -1 | 1, rank: 1 },
     { x: point.x + 18 * point.direction, y: point.y + preferredSide * far, side: preferredSide as -1 | 1, rank: 2 },
     { x: point.x - 18 * point.direction, y: point.y - preferredSide * far, side: -preferredSide as -1 | 1, rank: 3 },
-    { x: point.x + 246, y: point.y, side: 0 as const, rank: 4 },
-    { x: point.x - 246, y: point.y, side: 0 as const, rank: 5 },
+    { x: point.x + diagonal * point.direction, y: point.y + preferredSide * yDist, side: preferredSide as -1 | 1, rank: 4 },
+    { x: point.x - diagonal * point.direction, y: point.y - preferredSide * yDist, side: -preferredSide as -1 | 1, rank: 5 },
+    { x: point.x + 214, y: point.y, side: 0 as const, rank: 6 },
+    { x: point.x - 214, y: point.y, side: 0 as const, rank: 7 },
   ];
 }
 
@@ -146,26 +150,43 @@ export function calculateBoundaryPenalty(box: RoadmapRect, layout: { width: numb
   return penalty;
 }
 
-export function chooseBestCardPosition(point: RoadmapPoint, layout: { width: number; height: number; density: RoadmapDensity; mobile: boolean }, placed: RoadmapRect[]) {
-  let best: (RoadmapCardPlacement & { score: number; overlap: number }) | undefined;
-  for (const candidate of getCandidateCardPositions(point, layout)) {
+export function chooseBestCardPosition(point: RoadmapPoint, layout: { width: number; height: number; density: RoadmapDensity; mobile: boolean }, placed: RoadmapRect[], stationBoxes: RoadmapRect[]) {
+  let best: (RoadmapCardPlacement & { score: number; overlap: number; stationOverlap: number }) | undefined;
+  const candidates = getCandidateCardPositions(point, layout);
+  for (const candidate of candidates) {
     const x = clamp(candidate.x, CARD_W / 2 + 22, layout.width - CARD_W / 2 - 22);
     const y = clamp(candidate.y, CARD_H / 2 + 22, layout.height - CARD_H / 2 - 22);
     const box = rectFromCenter(x, y);
     const overlap = placed.reduce((sum, other) => sum + calculateOverlapArea(box, other), 0);
-    const stationBox = rectFromCenter(point.x, point.y, 96, 96);
-    const stationOverlap = calculateOverlapArea(box, stationBox, 8);
-    const score = overlap * 8 + stationOverlap * 10 + calculateBoundaryPenalty(box, layout) + Math.hypot(x - point.x, y - point.y) * 0.2 + candidate.rank * 12;
-    const scored = { id: point.id, x, y, side: candidate.side, box, score, overlap };
+    const stationOverlap = stationBoxes.reduce((sum, stationBox) => sum + calculateOverlapArea(box, stationBox, 14), 0);
+    const score: number = overlap * 8 + stationOverlap * 26 + calculateBoundaryPenalty(box, layout) + Math.hypot(x - point.x, y - point.y) * 0.18 + candidate.rank * 12;
+    const scored = { id: point.id, x, y, side: candidate.side, box, score, overlap, stationOverlap };
     if (!best || scored.score < best.score) best = scored;
   }
   if (!best) return { id: point.id, x: point.x, y: point.y, side: 1 as const, box: rectFromCenter(point.x, point.y) };
-  for (let step = 0; step < 12 && best.overlap > 0; step++) {
+  for (let step = 0; step < 18 && (best.overlap > 0 || best.stationOverlap > 0); step++) {
     const direction = best.side === 0 ? (best.y >= point.y ? 1 : -1) : best.side;
     const y = clamp(best.y + direction * 14, CARD_H / 2 + 22, layout.height - CARD_H / 2 - 22);
     const box = rectFromCenter(best.x, y);
     const overlap = placed.reduce((sum, other) => sum + calculateOverlapArea(box, other), 0);
-    if (overlap <= best.overlap) best = { ...best, y, box, overlap };
+    const stationOverlap = stationBoxes.reduce((sum, stationBox) => sum + calculateOverlapArea(box, stationBox, 14), 0);
+    const score: number = overlap * 8 + stationOverlap * 26 + calculateBoundaryPenalty(box, layout) + Math.hypot(best.x - point.x, y - point.y) * 0.18;
+    if (score <= best.score) best = { ...best, y, box, overlap, stationOverlap, score };
+  }
+  if (best.overlap > 0 || best.stationOverlap > 0) {
+    for (const candidate of candidates) {
+      for (const xOffset of [-192, -132, -66, 0, 66, 132, 192]) {
+        for (const yOffset of [-126, -84, -42, 0, 42, 84, 126]) {
+          const x = clamp(candidate.x + xOffset, CARD_W / 2 + 22, layout.width - CARD_W / 2 - 22);
+          const y = clamp(candidate.y + yOffset, CARD_H / 2 + 22, layout.height - CARD_H / 2 - 22);
+          const box = rectFromCenter(x, y);
+          const overlap = placed.reduce((sum, other) => sum + calculateOverlapArea(box, other), 0);
+          const stationOverlap = stationBoxes.reduce((sum, stationBox) => sum + calculateOverlapArea(box, stationBox, 14), 0);
+          const score: number = overlap * 12 + stationOverlap * 30 + calculateBoundaryPenalty(box, layout) + Math.hypot(x - point.x, y - point.y) * 0.2 + candidate.rank * 12;
+          if (score < best.score) best = { id: point.id, x, y, side: candidate.side, box, score, overlap, stationOverlap };
+        }
+      }
+    }
   }
   return { id: best.id, x: best.x, y: best.y, side: best.side, box: best.box };
 }

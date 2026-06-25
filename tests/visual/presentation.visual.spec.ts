@@ -4,6 +4,7 @@ import { test } from "@playwright/test";
 
 const artifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation/visual");
 const roadmapArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-roadmaps/visual");
+const slideArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-slide-experience/visual");
 const shots = [
   ["/", "home-desktop.png"],
   ["/architecture-review/", "architecture-desktop.png"],
@@ -14,15 +15,65 @@ const shots = [
   ["/executive-scenario/", "executive-desktop.png"],
 ] as const;
 
-test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); });
+test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); });
 
 for (const [route, file] of shots) {
   test(`captures ${file}`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(route);
     await page.screenshot({ fullPage: true, path: resolve(artifactDir, file) });
+    await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, file) });
   });
 }
+
+const slideShots = [
+  ["/roadmap/", "roadmap-portfolio-desktop.png"],
+  ["/roadmap/automatizacion-de-vuelos/", "roadmap-flight-desktop.png"],
+  ["/roadmap/erp-minimo-integrado/", "roadmap-erp-desktop.png"],
+  ["/roadmap/automatizacion-de-imagenes/", "roadmap-images-desktop.png"],
+  ["/roadmap/finanzas-y-facturacion/", "roadmap-finance-desktop.png"],
+  ["/roadmap/cumplimiento-y-gestion-regulatoria/", "roadmap-compliance-desktop.png"],
+  ["/roadmap/analitica-operativa-y-ejecutiva/", "roadmap-analytics-desktop.png"],
+  ["/roadmap/recursos-humanos-y-gestion-de-capacidad/", "roadmap-hr-desktop.png"],
+  ["/roadmap/capa-de-inteligencia-artificial-avanzada/", "roadmap-ai-desktop.png"],
+] as const;
+
+for (const [route, file] of slideShots) {
+  test(`captures slide ${file}`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(route);
+    await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, file) });
+  });
+}
+
+test("captures slide dialogs and responsive states", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/roadmap/automatizacion-de-vuelos/");
+  await page.getByRole("button", { name: /Abrir Objetivo/ }).click();
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "objective-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: /Abrir Métricas/ }).click();
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "metrics-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: /Abrir Dependencias/ }).click();
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "dependencies-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: /Abrir Riesgos/ }).click();
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "risks-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: /Explorar horizonte/ }).click();
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "horizon-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "roadmap-project-laptop.png") });
+  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "roadmap-project-tablet.png") });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/roadmap/automatizacion-de-vuelos/");
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "roadmap-project-mobile.png") });
+  await page.getByRole("button", { name: /Información/ }).click();
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "mobile-info-sheet.png") });
+});
 
 test("captures mobile states", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -40,8 +91,8 @@ test("captures roadmap portfolio states", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/roadmap/");
   await page.screenshot({ fullPage: true, path: resolve(roadmapArtifactDir, "portfolio-desktop-comfortable.png") });
-  await page.getByRole("button", { name: "Denso" }).click();
-  await page.screenshot({ fullPage: true, path: resolve(roadmapArtifactDir, "portfolio-desktop-dense.png") });
+  await page.locator("[data-roadmap-station]").nth(3).click();
+  await page.screenshot({ fullPage: true, path: resolve(roadmapArtifactDir, "portfolio-desktop-selected.png") });
   await page.setViewportSize({ width: 768, height: 900 });
   await page.goto("/roadmap/");
   await page.screenshot({ fullPage: true, path: resolve(roadmapArtifactDir, "portfolio-tablet.png") });
@@ -78,4 +129,5 @@ test("captures roadmap mobile and reduced motion", async ({ page, context }) => 
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/roadmap/");
   await page.screenshot({ fullPage: true, path: resolve(roadmapArtifactDir, "reduced-motion.png") });
+  await page.screenshot({ fullPage: true, path: resolve(slideArtifactDir, "reduced-motion.png") });
 });
