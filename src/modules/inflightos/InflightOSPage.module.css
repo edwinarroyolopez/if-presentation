@@ -196,8 +196,42 @@
 }
 
 @media (max-width: 640px) {
+  .page {
+    height: auto;
+    min-height: calc(100dvh - 126px);
+    grid-template-rows: auto auto;
+  }
+
+  .heroCard {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .title {
+    font-size: clamp(1.85rem, 8vw, 2.35rem);
+  }
+
+  .description {
+    font-size: 0.82rem;
+    line-height: 1.38;
+  }
+
   .metricsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric {
+    min-height: 64px;
+    padding: 10px;
+  }
+
+  .metric strong {
+    font-size: 1.2rem;
+  }
+
+  .graphCard,
+  .liveGraphShell {
+    min-height: min(420px, 48dvh);
   }
 
   .graphOverlay,
