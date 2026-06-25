@@ -5,6 +5,7 @@ import { test } from "@playwright/test";
 const artifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation/visual");
 const roadmapArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-roadmaps/visual");
 const slideArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-slide-experience/visual");
+const systemsIntegrationArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-systems-integration/visual");
 const shots = [
   ["/", "home-desktop.png"],
   ["/architecture-review/", "architecture-desktop.png"],
@@ -15,7 +16,7 @@ const shots = [
   ["/executive-scenario/", "executive-desktop.png"],
 ] as const;
 
-test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); });
+test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); mkdirSync(systemsIntegrationArtifactDir, { recursive: true }); });
 
 for (const [route, file] of shots) {
   test(`captures ${file}`, async ({ page }) => {
@@ -85,6 +86,34 @@ test("captures mobile states", async ({ page }) => {
   await page.screenshot({ fullPage: true, path: resolve(artifactDir, "roadmap-mobile.png") });
   await page.goto("/systems-integration/");
   await page.screenshot({ fullPage: true, path: resolve(artifactDir, "integrations-mobile.png") });
+});
+
+test("captures systems integration required viewports", async ({ page }) => {
+  for (const viewport of [
+    { width: 1366, height: 768, name: "after-1366x768.png" },
+    { width: 1440, height: 900, name: "after-1440x900.png" },
+    { width: 1920, height: 1080, name: "after-1920x1080.png" },
+    { width: 390, height: 844, name: "after-mobile-390x844.png" },
+  ]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/systems-integration/");
+    await page.screenshot({ fullPage: true, path: resolve(systemsIntegrationArtifactDir, viewport.name) });
+  }
+});
+
+test("captures systems integration dialogs", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/systems-integration/");
+  for (const [label, file] of [
+    ["Flujo de negocio", "dialog-business-flow.png"],
+    ["Contratos de integración", "dialog-integration-contracts.png"],
+    ["Conexiones y permisos", "dialog-connections-permissions.png"],
+    ["Resiliencia y trazabilidad", "dialog-resilience-traceability.png"],
+  ] as const) {
+    await page.getByRole("button", { name: `Abrir ${label}` }).click();
+    await page.screenshot({ fullPage: true, path: resolve(systemsIntegrationArtifactDir, file) });
+    await page.keyboard.press("Escape");
+  }
 });
 
 test("captures roadmap portfolio states", async ({ page }) => {
