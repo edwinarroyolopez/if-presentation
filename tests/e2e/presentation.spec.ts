@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const routes = ["/", "/architecture-review/", "/roadmap/", "/systems-integration/", "/data-modeling/", "/ai-strategy/", "/executive-scenario/"];
-const headings = ["InflightOS une", "Revisión de arquitectura", "Roadmap visual", "ERP como núcleo", "Del cliente a factura", "IA donde existe", "18 meses sí"];
+const headings = ["InflightOS une", "Revisión de arquitectura", "Roadmap visual", "ERP como núcleo", "Ocho dominios", "IA donde existe", "18 meses sí"];
 const projectRoutes = [
   "/roadmap/automatizacion-de-vuelos/",
   "/roadmap/erp-minimo-integrado/",
@@ -59,8 +59,9 @@ test("home, CTA, menu, direct routes and content load", async ({ page }) => {
   for (const label of ["Flujo de negocio", "Contratos de integración", "Conexiones y permisos", "Resiliencia y trazabilidad"]) await expect(page.getByRole("button", { name: `Abrir ${label}` })).toBeVisible();
 
   await page.goto("/data-modeling/");
-  await page.getByRole("button", { name: /Ver detalle/ }).click();
-  for (const entity of ["Client", "MPO", "Project", "Mission", "MediaBatch", "Deliverable", "Invoice", "UserRole"]) await expect(page.getByText(entity).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ocho dominios, un flujo trazable" })).toBeVisible();
+  for (const project of ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]) await expect(page.getByText(project, { exact: true }).first()).toBeVisible();
+  for (const label of ["Dominios y ownership", "Relaciones y eventos", "Estados y lifecycles", "Gobierno e integridad"]) await expect(page.getByRole("button", { name: `Abrir ${label}` })).toBeVisible();
 });
 
 test("previous next progress and mobile drawer", async ({ page }) => {
@@ -137,6 +138,64 @@ test("systems integration blueprint and dialogs", async ({ page }) => {
 
   const noOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
   expect(noOverflow).toBe(true);
+});
+
+test("data modeling v2 slide and dialogs", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/data-modeling/");
+  await expect(page.getByRole("heading", { name: "Ocho dominios, un flujo trazable" })).toBeVisible();
+  await expect(page.getByText("Client / Opportunity -> Project / MPO -> Mission -> MediaBatch / Sample -> Deliverable -> Invoice / Payment -> Margin")).toBeVisible();
+  for (const name of ["CRM, Ventas y Proyectos", "Flight Operations", "Image Operations", "Finanzas", "Cumplimiento", "Analítica", "Personas y capacidad", "Plataforma de IA"]) await expect(page.getByText(name).first()).toBeVisible();
+  for (const text of ["habilita o bloquea", "observa y certifica", "asigna capacidad", "recomienda con aprobación", "Sin escrituras cross-DB"]) await expect(page.getByText(text).first()).toBeVisible();
+
+  await expect(page.getByRole("button", { name: /Ver detalle/ })).toHaveCount(0);
+  for (const label of ["Dominios y ownership", "Relaciones y eventos", "Estados y lifecycles", "Gobierno e integridad"]) {
+    const action = page.getByRole("button", { name: `Abrir ${label}` });
+    await expect(action).toHaveAttribute("aria-label", `Abrir ${label}`);
+    await action.focus();
+    await expect(action).toBeFocused();
+    await expect(page.getByText(label).first()).toBeVisible();
+    await action.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.getByRole("dialog")).toContainText(label);
+    if (label === "Relaciones y eventos") {
+      for (const eventName of ["OpportunityWon.v1", "ProjectCreated.v1", "MissionReviewedClosed.v1", "MediaIngested.v1", "SampleApproved.v1", "DeliverableApproved.v1", "InvoiceRequested.v1"]) await expect(page.getByRole("dialog")).toContainText(eventName);
+    }
+    if (label === "Estados y lifecycles") {
+      for (const state of ["MissionPilotCompleted", "REVIEWED_CLOSED", "CHANGES_REQUESTED", "DEGRADED", "RETIRED"]) await expect(page.getByRole("dialog")).toContainText(state);
+    }
+    if (label === "Gobierno e integridad") {
+      await expect(page.getByRole("dialog")).toContainText("Organization / tenant scope");
+      await expect(page.getByRole("dialog")).toContainText("Outbox");
+      await expect(page.getByRole("dialog")).toContainText("IA sin commit autónomo");
+    }
+    await page.keyboard.press("Escape");
+    await expect(action).toBeFocused();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  }
+
+  const noInternalOverflow = await page.locator(".presentation-slide-body").evaluate((body) => body.scrollHeight <= body.clientHeight + 1);
+  expect(noInternalOverflow).toBe(true);
+  const noHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  expect(noHorizontalOverflow).toBe(true);
+  const collision = await page.locator(".data-model-map").evaluate((map) => {
+    const cards = Array.from(map.querySelectorAll(".data-domain-card"), (card) => card.getBoundingClientRect());
+    for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) {
+      const x = Math.max(0, Math.min(cards[i].right, cards[j].right) - Math.max(cards[i].left, cards[j].left));
+      const y = Math.max(0, Math.min(cards[i].bottom, cards[j].bottom) - Math.max(cards[i].top, cards[j].top));
+      if (x * y > 80) return true;
+    }
+    return false;
+  });
+  expect(collision).toBe(false);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/data-modeling/");
+  await expect(page.getByRole("heading", { name: "Ocho dominios, un flujo trazable" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Plataforma de IA" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Abrir Gobierno e integridad" })).toBeVisible();
+  const mobileNoOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  expect(mobileNoOverflow).toBe(true);
 });
 
 test("roadmap portfolio and project routes", async ({ page }) => {

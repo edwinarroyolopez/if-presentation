@@ -63,15 +63,67 @@ export type IntegrationContent = {
   footer: { primary: string; secondary: string };
 };
 
-export type DataEntity = {
-  name: "Client" | "MPO" | "Project" | "Mission" | "MediaBatch" | "Deliverable" | "Invoice" | "UserRole";
-  responsibility: string;
-  fields: string[];
-  relationships: string[];
+export type DataDomainId = "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7" | "p8";
+export type DataDomainIcon = "plane" | "building" | "images" | "finance" | "compliance" | "analytics" | "people" | "ai";
+export type DataRelationType = "Referencia por ID" | "Comando API" | "Evento" | "Read model" | "Regla de readiness" | "Recomendación asistida";
+
+export type DataDomain = {
+  id: DataDomainId;
+  order: number;
+  shortName: string;
+  fullName: string;
+  type: "core" | "transversal";
   owner: string;
-  states: string[];
+  sourceOfTruth: string;
+  icon: DataDomainIcon;
+  functionalVerb: string;
+  executiveSummary: string;
+  primaryEntities: string[];
   lifecycle: string[];
   integrityRules: string[];
+  events: string[];
+  sourceDocument: string;
+};
+
+export type DataValueStage = {
+  id: string;
+  domainId: DataDomainId;
+  label: string;
+  owner: string;
+  handoff: string;
+};
+
+export type DataCrossDomainLink = {
+  id: string;
+  from: DataDomainId;
+  to: DataDomainId;
+  type: DataRelationType;
+  label: string;
+  mechanism: string;
+  initiator: string;
+  receiver: string;
+  cardinality: string;
+  sharedIds: string[];
+  events: string[];
+};
+
+export type DataLifecycleHighlight = {
+  domainId: DataDomainId;
+  title: string;
+  states: string[];
+  alternates: string[];
+};
+
+export type DataModelingContent = {
+  title: string;
+  thesis: string;
+  meta: string[];
+  valueStream: { title: string; summary: string; stages: DataValueStage[] };
+  domains: DataDomain[];
+  crossDomainLinks: DataCrossDomainLink[];
+  lifecycleHighlights: DataLifecycleHighlight[];
+  governanceRules: { id: string; title: string; description: string }[];
+  footerInsight: { left: string; callout: string; badge: string };
 };
 
 export type PresentationContent = {
@@ -79,7 +131,7 @@ export type PresentationContent = {
   home: { title: string; intro: string; systems: string[]; parts: ContentItem[]; recommendation: string };
   architecture: { summary: string; strengths: ContentItem[]; risks: ContentItem[]; deferred: ContentItem[]; priorities: ContentItem[] };
   integration: IntegrationContent;
-  dataModeling: { entities: DataEntity[]; relationships: ContentItem[]; lifecycles: ContentItem[] };
+  dataModeling: DataModelingContent;
   aiStrategy: { useNow: ContentItem[]; postpone: ContentItem[]; humanSupervision: ContentItem[]; doNotAutomate: ContentItem[]; guardrails: ContentItem[]; promotionCriteria: string[] };
   executiveScenario: { scenario: string; memo: string; accept: string[]; negotiate: string[]; postpone: string[]; risks: string[]; phases: ContentItem[]; metrics: ContentItem[]; decision: string };
 };
