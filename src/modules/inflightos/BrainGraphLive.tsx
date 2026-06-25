@@ -171,10 +171,12 @@ export function BrainGraphLive({ snapshot }: { snapshot: BrainGraphSnapshot }) {
 
   return (
     <div className={styles.liveGraphShell}>
-      <canvas ref={canvasRef} className={styles.liveGraph} aria-label="Snapshot dinamico del grafo global de graphify-if" />
       <div className={styles.graphOverlay}>
         <span>if-global.graph.json</span>
         <strong>{snapshot.nodes.length.toLocaleString("es")} puntos renderizados</strong>
+      </div>
+      <div className={styles.graphCanvasStage}>
+        <canvas ref={canvasRef} className={styles.liveGraph} aria-label="Snapshot dinamico del grafo global de graphify-if" />
       </div>
       <div className={styles.projectRail} aria-label="Proyectos incluidos en el grafo global">
         {snapshot.projects.map((project) => (
