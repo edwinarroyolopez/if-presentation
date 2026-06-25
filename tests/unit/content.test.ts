@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { getNavigationItems, getPresentationContent, getPreviousNext, getRouteProgress, isRouteActive } from "@/lib/content";
 import { buildCatmullRomPath, computeRoadmapLayout } from "@/components/roadmap/roadmap-layout";
 import { getRoadmapBySlug, getRoadmapProjectNavigation, getRoadmapProjects, getRoadmapStaticParams } from "@/lib/roadmaps/roadmap-registry";
-import { integrationSchema } from "@/lib/content/schema";
+import { dataModelingSchema, integrationSchema } from "@/lib/content/schema";
 
 describe("presentation content contract", () => {
   const content = getPresentationContent();
@@ -65,8 +67,62 @@ describe("presentation content contract", () => {
     expect(integrationSchema.safeParse(missingObjectStore).success).toBe(false);
   });
 
-  it("keeps required data entities", () => {
-    expect(content.dataModeling.entities.map((entity) => entity.name)).toEqual(["Client", "MPO", "Project", "Mission", "MediaBatch", "Deliverable", "Invoice", "UserRole"]);
+  it("keeps required data modeling v2 domains", () => {
+    const domains = content.dataModeling.domains;
+    expect(domains).toHaveLength(8);
+    expect(domains.map((domain) => domain.id).sort()).toEqual(["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"]);
+    expect(new Set(domains.map((domain) => domain.id)).size).toBe(8);
+    expect(domains.filter((domain) => domain.type === "core")).toHaveLength(4);
+    expect(domains.filter((domain) => domain.type === "transversal")).toHaveLength(4);
+    for (const domain of domains) {
+      expect(domain.owner.length).toBeGreaterThan(0);
+      expect(domain.sourceOfTruth.length).toBeGreaterThan(0);
+      expect(domain.primaryEntities.length).toBeGreaterThan(0);
+      expect(domain.sourceDocument).toMatch(/^docs\/roadmaps\/p[1-8]-/);
+    }
+  });
+
+  it("keeps data modeling links and value stream valid", () => {
+    const domainIds = new Set(content.dataModeling.domains.map((domain) => domain.id));
+    expect(content.dataModeling.valueStream.stages.map((stage) => stage.label)).toEqual(["Client / Opportunity", "Project / MPO", "Mission", "MediaBatch / Sample", "Deliverable", "Invoice / Payment", "Margin"]);
+    for (const stage of content.dataModeling.valueStream.stages) expect(domainIds.has(stage.domainId)).toBe(true);
+    for (const link of content.dataModeling.crossDomainLinks) {
+      expect(domainIds.has(link.from)).toBe(true);
+      expect(domainIds.has(link.to)).toBe(true);
+      expect(link.sharedIds.length).toBeGreaterThan(0);
+      expect(link.events.length).toBeGreaterThan(0);
+    }
+    expect(content.dataModeling.crossDomainLinks.some((link) => link.events.includes("MissionReviewedClosed.v1"))).toBe(true);
+    expect(content.dataModeling.domains.find((domain) => domain.id === "p8")?.integrityRules.join(" ")).toContain("La IA propone");
+    expect(content.dataModeling.footerInsight.badge).toBe("Sin escrituras cross-DB");
+  });
+
+  it("rejects invalid data modeling schema changes", () => {
+    const missingDomain = structuredClone(content.dataModeling);
+    missingDomain.domains = missingDomain.domains.filter((domain) => domain.id !== "p8");
+    expect(dataModelingSchema.safeParse(missingDomain).success).toBe(false);
+
+    const emptyOwner = structuredClone(content.dataModeling);
+    emptyOwner.domains[0].owner = "";
+    expect(dataModelingSchema.safeParse(emptyOwner).success).toBe(false);
+
+    const emptyEntities = structuredClone(content.dataModeling);
+    emptyEntities.domains[0].primaryEntities = [];
+    expect(dataModelingSchema.safeParse(emptyEntities).success).toBe(false);
+  });
+
+  it("keeps data modeling content static without runtime fetch or fs", () => {
+    const files = [
+      "src/lib/content/index.ts",
+      "src/modules/data-modeling/DataModelingPage.tsx",
+      "src/app/data-modeling/page.tsx",
+    ];
+    for (const file of files) {
+      const source = readFileSync(resolve(process.cwd(), file), "utf8");
+      expect(source).not.toMatch(/\bfetch\s*\(/);
+      expect(source).not.toMatch(/from\s+["']node:fs["']|from\s+["']fs["']|require\(["']fs["']\)/);
+      expect(source).not.toMatch(/\/api\//);
+    }
   });
 
   it("keeps required AI and executive scenario content", () => {

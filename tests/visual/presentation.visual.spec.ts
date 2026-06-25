@@ -6,6 +6,7 @@ const artifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation/visu
 const roadmapArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-roadmaps/visual");
 const slideArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-slide-experience/visual");
 const systemsIntegrationArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-systems-integration/visual");
+const dataModelingArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-data-modeling/visual");
 const shots = [
   ["/", "home-desktop.png"],
   ["/architecture-review/", "architecture-desktop.png"],
@@ -16,7 +17,7 @@ const shots = [
   ["/executive-scenario/", "executive-desktop.png"],
 ] as const;
 
-test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); mkdirSync(systemsIntegrationArtifactDir, { recursive: true }); });
+test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); mkdirSync(systemsIntegrationArtifactDir, { recursive: true }); mkdirSync(dataModelingArtifactDir, { recursive: true }); });
 
 for (const [route, file] of shots) {
   test(`captures ${file}`, async ({ page }) => {
@@ -114,6 +115,41 @@ test("captures systems integration dialogs", async ({ page }) => {
     await page.screenshot({ fullPage: true, path: resolve(systemsIntegrationArtifactDir, file) });
     await page.keyboard.press("Escape");
   }
+});
+
+test("captures data modeling required evidence", async ({ page }) => {
+  for (const viewport of [
+    { width: 1600, height: 900, name: "after-data-modeling-desktop-1600x900.png" },
+    { width: 1366, height: 768, name: "after-data-modeling-laptop-1366x768.png" },
+    { width: 1280, height: 720, name: "after-data-modeling-1280x720.png" },
+  ]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/data-modeling/");
+    await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, viewport.name) });
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/data-modeling/");
+  await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "after-data-modeling-mobile.png") });
+
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/data-modeling/");
+  await page.getByRole("button", { name: "Abrir Dominios y ownership" }).click();
+  await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "data-modeling-domains-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Abrir Relaciones y eventos" }).click();
+  await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "data-modeling-relations-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Abrir Estados y lifecycles" }).click();
+  await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "data-modeling-lifecycles-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Abrir Gobierno e integridad" }).click();
+  await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "data-modeling-governance-dialog.png") });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Abrir Dominios y ownership" }).focus();
+  await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "data-modeling-keyboard-focus.png") });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "data-modeling-reduced-motion.png") });
 });
 
 test("captures roadmap portfolio states", async ({ page }) => {
