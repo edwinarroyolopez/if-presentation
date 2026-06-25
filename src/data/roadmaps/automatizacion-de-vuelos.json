@@ -1,0 +1,63 @@
+{
+  "id": "p1",
+  "slug": "automatizacion-de-vuelos",
+  "order": 1,
+  "title": "Automatización de vuelos",
+  "shortTitle": "Vuelos",
+  "subtitle": "Flight Operations controlado, auditable y medible",
+  "summary": "Digitaliza el flujo Proyecto → MPO → misión → piloto → captura → revisión → Image Ops, separando la finalización del piloto del cierre revisado por Customer Service.",
+  "sourceDocument": "docs/roadmaps/p1-automatizacion-vuelos.md",
+  "icon": "plane",
+  "accent": "#51c0ff",
+  "strategicObjective": "Transformar la coordinación manual de vuelos en un flujo digital que reduzca errores, tiempos de planificación, reprogramaciones y retrabajo antes de entregar material a Image Operations.",
+  "northStarMetric": { "title": "Misiones completadas dentro de ventana y sin retrabajo evitable", "description": "Combina velocidad, calidad y cumplimiento operacional, midiendo si la misión termina en la ventana planificada y con material suficiente para revisión y handoff." },
+  "supportingMetrics": [
+    { "title": "Planificación", "items": ["Tiempo solicitud-asignación", "Tiempo de preparación", "Misiones iniciadas dentro de ventana", "Misiones reprogramadas por causas evitables"] },
+    { "title": "Calidad operacional", "items": ["Puntos de captura completados", "Retrabajo por material incompleto", "Errores por misión", "Incidentes de cumplimiento o seguridad"] },
+    { "title": "Handoff", "items": ["Tiempo vuelo-revisión", "Tiempo revisión-Image Ops", "Utilización de pilotos y equipos", "Costo operativo por misión"] }
+  ],
+  "principles": [
+    { "title": "Automatizar primero el proceso", "description": "La primera versión automatiza coordinación, validación, asignación, seguimiento, evidencias y traspasos, no autonomía total del dron." },
+    { "title": "REST como fuente de verdad", "description": "Los sockets notifican cambios, pero el estado oficial se consulta mediante API." },
+    { "title": "Transiciones auditables", "description": "Asignaciones, inicio, finalización, revisión, cancelación y reasignación deben registrar actor, estado, motivo, proyecto y organización." },
+    { "title": "Customer Service cierra la revisión", "description": "El piloto completa la operación; Image Ops solo inicia después de `MissionReviewedClosed`." }
+  ],
+  "scope": { "included": ["Misión desde proyecto/MPO", "Ventana de captura y ubicación", "Asignación y aceptación de piloto", "Inicio, evidencias y finalización", "Revisión y cierre por Customer Service", "Historial y notificaciones"], "deferred": ["Vuelo autónomo general", "Optimización avanzada de rutas con IA", "Marketplace externo de pilotos", "Facturación automática por misión", "Predicción de demanda"] },
+  "horizons": [
+    { "id": "flight-30", "days": 30, "rangeLabel": "0–30 días", "title": "Definición, línea base y diseño ejecutable", "result": "Modelo operacional aprobado, alcance MVP cerrado, contratos técnicos definidos y piloto preparado.", "summary": "Eliminar ambigüedad antes de construir y medir el proceso actual.", "icon": "plane", "tone": "blue", "workstreams": [
+      { "id": "flight-30-discovery", "title": "Descubrimiento operacional", "activities": ["Mapear solicitud, MPO, selección de puntos, piloto, captura, carga, validación y retrabajo", "Entrevistar PMs, pilotos, Customer Service y editores", "Medir tiempos, reprogramaciones, puntos omitidos, permisos, clima y golden hour"], "deliverable": "Mapa As-Is del proceso de vuelo" },
+      { "id": "flight-30-mvp", "title": "MVP y dominio", "activities": ["Definir flujo Mission Requested a Mission Reviewed and Closed", "Cerrar entidad Mission, estados, revisión y asignación", "Diseñar bandejas, detalle, timeline, checklist y notificaciones"], "deliverable": "Alcance MVP, lifecycle y prototipos UX" },
+      { "id": "flight-30-contracts", "title": "Contratos y baseline", "activities": ["Definir eventos MissionRequested a MissionFailed", "Acordar permisos y auditoría", "Medir KPIs base de planificación, retrabajo, ventana y handoff"], "deliverable": "Eventos v1, KPIs base y backlog priorizado" }
+    ], "dependencies": ["Gestión de Proyectos y MPO", "Usuarios, roles y permisos", "Auditoría", "Identidad de pilotos", "Storage de fotos y videos"], "team": ["Product Owner de Operaciones", "Lead de Plataforma", "Tech Lead Flight Operations", "Backend", "Frontend", "UX/Product Designer", "QA Automation", "Pilotos", "Customer Service"], "gate": ["Flujo aprobado", "MVP explícito", "Estados cerrados", "Permisos definidos", "Eventos versionados", "KPIs base", "Proyectos piloto seleccionados"], "metrics": ["Baseline de tiempos", "Retrabajo", "Puntos omitidos", "Cumplimiento de ventana"], "risks": ["Planear en abstracto", "No conocer restricciones regulatorias", "Semántica incorrecta de cierre"] },
+    { "id": "flight-90", "days": 90, "rangeLabel": "31–90 días", "title": "MVP operativo y piloto controlado", "result": "Misiones reales operadas en InflightOS desde solicitud hasta revisión y cierre.", "summary": "Probar el flujo completo sin reemplazar todos los procesos todavía.", "icon": "plane", "tone": "green", "workstreams": [
+      { "id": "flight-90-product", "title": "Capacidades del MVP", "activities": ["Crear misión, programar ventana y asociar puntos", "Asignar, reasignar, aceptar o rechazar piloto", "Completar checklist, cargar evidencias y finalizar operación", "Revisar cobertura y cerrar por Customer Service"], "deliverable": "MVP usado por misiones piloto" },
+      { "id": "flight-90-architecture", "title": "Arquitectura del MVP", "activities": ["APIs REST versionadas", "State machine, auditoría, outbox, idempotencia y notificaciones", "Upload multipart y storage de evidencias"], "deliverable": "Backend/frontend operativo con integraciones iniciales" },
+      { "id": "flight-90-pilot", "title": "Piloto medido", "activities": ["Seleccionar Construction Update, 360/backplates y audiovisual", "Incluir PMs, pilotos y Customer Service", "Medir trazabilidad, notificaciones, errores y adopción"], "deliverable": "Piloto con métricas y decisión de escala" }
+    ], "dependencies": ["Project y MPO", "Access Control", "Cloudinary o storage", "Analytics", "Image Ops desacoplado"], "team": ["Equipo base", "Flight Systems Integration Engineer", "QA operativo", "DevOps/SRE parcial", "Analista de Operaciones"], "gate": ["Flujo real completo", "Sin brechas de autorización", "Auditoría reconstruye misión", "Notificaciones confiables", "Replay sin duplicados", "Operations aprueba continuar"], "metrics": ["90% trazabilidad piloto", "100% transiciones críticas auditadas", "95% notificaciones críticas", "10-20% menos coordinación administrativa"], "risks": ["Scope creep", "Integraciones sin owner", "Procesos paralelos críticos"] },
+    { "id": "flight-180", "days": 180, "rangeLabel": "91–180 días", "title": "Automatización operacional e integración a escala", "result": "MVP escalado con planificación asistida, validaciones, integración con motor, Image Ops y Analytics.", "summary": "Pasar de operación digital a operación parcialmente automatizada y recuperable.", "icon": "plane", "tone": "amber", "workstreams": [
+      { "id": "flight-180-planning", "title": "Planificación y validaciones", "activities": ["Plantillas por tipo de misión", "Validaciones antes de READY", "Calendario, disponibilidad, conflictos, capacidad y reprogramación asistida"], "deliverable": "Motor de preparación con READY/WARNINGS/BLOCKED" },
+      { "id": "flight-180-integrations", "title": "Integraciones", "activities": ["Intercambio de datos con motor especializado", "Simulación y ejecución controlada solo para tipos aprobados", "Handoff MissionReviewedClosed → MediaBatch"], "deliverable": "Integración recuperable con Flight Automation e Image Ops" },
+      { "id": "flight-180-reliability", "title": "Analítica y confiabilidad", "activities": ["Dashboards de volumen, ventana, retrabajo, fallos, costo y capacidad", "Monitoreo, retry, dead-letter, replay y runbooks"], "deliverable": "Operación medible y con runbooks" }
+    ], "dependencies": ["Image Operations", "Analytics", "Runbooks", "Outbox", "Motor Flight Automation"], "team": ["Flight Systems Integration Engineer", "Data/Analytics Engineer", "DevOps/SRE", "Product Operations Analyst", "QA adicional"], "gate": ["Varios proyectos simultáneos", "Plantillas estables", "Validaciones reducen errores", "Handoff confiable", "Datos consistentes", "Estabilidad varias semanas"], "metrics": ["20-30% menos planificación", "20-25% menos retrabajo", "90% ventana controlable", "95% handoffs exitosos", "99% eventos críticos"], "risks": ["Automatización sin fallback", "QC operacional insuficiente", "Datos incompletos antes de READY"] },
+    { "id": "flight-365", "days": 365, "rangeLabel": "181–365 días", "title": "Escala, optimización y automatización inteligente", "result": "Flight Operations madura para distintos servicios, geografías, equipos y volúmenes.", "summary": "Optimizar con Control Tower, recomendaciones, IA asistida, flota, cumplimiento, finanzas e integraciones externas.", "icon": "plane", "tone": "cyan", "workstreams": [
+      { "id": "flight-365-control", "title": "Control Tower", "activities": ["Misiones en riesgo, bloqueadas y pendientes", "Pilotos, drones, clima, incidentes, handoffs y capacidad", "Navegación desde alerta hasta acción"], "deliverable": "Control Tower de vuelos" },
+      { "id": "flight-365-optimization", "title": "Optimización e IA asistida", "activities": ["Recomendar ventana, piloto, equipo, secuencia y capacidad", "Predecir reprogramación, duración, anomalías y puntos omitidos", "Mantener explicación, human-in-the-loop, rollback y drift"], "deliverable": "Recomendaciones medibles y reversibles" },
+      { "id": "flight-365-scale", "title": "Escala organizacional", "activities": ["Gestión de flota", "Cumplimiento y costos por misión", "Varias ciudades, entidades, monedas y regulaciones", "Integraciones externas por contrato"], "deliverable": "Capacidad escalable con ROI operacional" }
+    ], "dependencies": ["Cumplimiento", "Finanzas", "Analytics", "Gestión de flota", "Integraciones externas"], "team": ["Product/Data roles", "SRE", "Data/ML", "Compliance", "Finance partner", "Operations leadership"], "gate": ["Flujo adoptado", "Métricas históricas confiables", "Retrabajo reducido", "SLOs y runbooks", "Costo por misión visible", "ROI demostrado"], "metrics": ["35-50% menos administración", "30-40% menos errores", "95% ventana controlable", "98% puntos completados", "ROI demostrado"], "risks": ["IA sin datos", "Cumplimiento tratado como checklist", "Alcance prematuro", "Integraciones directas a colecciones internas"] }
+  ],
+  "dependencies": ["Project Management y MPO", "Access Control", "Notificaciones persistentes", "Media Storage", "Image Operations", "Analytics", "Cumplimiento"],
+  "team": ["Product Owner Operaciones", "Lead Plataforma", "Tech Lead Flight", "Backend", "Frontend", "QA", "UX", "Pilotos", "Customer Service"],
+  "risks": [
+    { "title": "Automatizar el vuelo antes del proceso", "mitigation": "Estabilizar lifecycle operacional y calidad de datos antes de autonomía." },
+    { "title": "Activar Image Ops demasiado pronto", "mitigation": "Separar MissionPilotCompleted de MissionReviewedClosed." },
+    { "title": "Dependencia excesiva de sockets", "mitigation": "REST como fuente de verdad y sockets como señal." },
+    { "title": "Baja adopción de pilotos", "mitigation": "Diseñar móvil simple con pilotos y reducir carga real." }
+  ],
+  "executiveSummary": [
+    { "horizon": "30 días", "objective": "Entender y definir", "visibleResult": "Modelo operacional, datos, estados, contratos, KPIs y piloto aprobados" },
+    { "horizon": "90 días", "objective": "Operar un MVP", "visibleResult": "Misiones reales gestionadas desde solicitud hasta revisión y cierre" },
+    { "horizon": "180 días", "objective": "Automatizar y escalar", "visibleResult": "Validaciones, planificación, motor, Image Ops y Analytics" },
+    { "horizon": "365 días", "objective": "Optimizar y demostrar ROI", "visibleResult": "Control Tower, optimización, IA asistida, flota, cumplimiento y costos" }
+  ],
+  "finalMessage": "En 30 días se controla el proceso. En 90 días se demuestra el flujo. En 180 días se automatiza la operación. En 365 días se optimiza y escala con datos."
+}

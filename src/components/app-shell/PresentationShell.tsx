@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { getNavigationItems, getRouteProgress, normalizePath } from "@/lib/content";
+import { getNavigationItems, getRouteProgress, isRouteActive, normalizePath } from "@/lib/content";
 import { BrandBlock } from "@/components/layout/BrandBlock";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -35,7 +35,7 @@ function Progress({ part, percent }: { part: number; percent: number }) {
 }
 
 function Nav({ active, onNavigate }: { active: string; onNavigate?: () => void }) {
-  return <nav className="part-nav" aria-label="Partes de la presentación"><div className="nav-label">Índice</div>{getNavigationItems().map((item) => <Link aria-current={item.route === active ? "page" : undefined} className={item.route === active ? "part-link active" : "part-link"} href={item.route} key={item.id} onClick={onNavigate}><span className="n">{item.part === 0 ? "00" : String(item.part).padStart(2, "0")}</span><span><b>{item.label}</b><small>{item.part === 0 ? "Preámbulo" : `Parte ${item.part} de 6`}</small></span></Link>)}</nav>;
+  return <nav className="part-nav" aria-label="Partes de la presentación"><div className="nav-label">Índice</div>{getNavigationItems().map((item) => { const current = isRouteActive(item.route, active); return <Link aria-current={current ? "page" : undefined} className={current ? "part-link active" : "part-link"} href={item.route} key={item.id} onClick={onNavigate}><span className="n">{item.part === 0 ? "00" : String(item.part).padStart(2, "0")}</span><span><b>{item.label}</b><small>{item.part === 0 ? "Preámbulo" : `Parte ${item.part} de 6`}</small></span></Link>; })}</nav>;
 }
 
 function PreviousNext({ previous, next }: { previous?: { route: string; shortLabel: string }; next?: { route: string; shortLabel: string } }) {

@@ -1,0 +1,25 @@
+{
+  "title": "Roadmap InflightOS",
+  "summary": "Secuencia de ocho proyectos para transformar InflightOS en una plataforma operativa trazable: primero se estabiliza el flujo comercial-operativo, luego se automatiza producción, finanzas y cumplimiento, y finalmente se gobierna con analítica, capacidad e IA.",
+  "sequenceExplanation": "La secuencia reduce riesgo de plataforma: ERP y Flight Operations crean la fuente de verdad operacional; Image Ops, Finanzas y Cumplimiento consumen eventos y evidencia; Analítica, RR. HH. e IA escalan cuando ya existen datos confiables, ownership y controles.",
+  "dependencies": [
+    "ERP mínimo y Project Management sostienen los identificadores de cliente, oportunidad, proyecto, entregable y facturación.",
+    "Flight Operations debe cerrar misiones con revisión antes de activar Image Operations.",
+    "Finanzas depende de evidencia comercial, operacional y de entregables aprobados.",
+    "Cumplimiento debe integrarse antes de escalar operaciones críticas o IA sobre datos sensibles.",
+    "Analítica e IA dependen de eventos, métricas certificadas, calidad de datos y permisos por organización."
+  ],
+  "hiring": [
+    "30 días: Product Owners por dominio, Lead de Plataforma, Business Analysts, UX/Product Design y QA Automation.",
+    "90 días: Backend, Frontend, Integration QA, especialistas de vuelo, imagen, finanzas, compliance y people operations.",
+    "180 días: Data/Analytics Engineers, DevOps/SRE, Integration Engineers, ML/CV y especialistas de capacidad.",
+    "365 días: roles de plataforma, gobierno de datos, MLOps, FP&A, workforce planning y programas de adopción."
+  ],
+  "executiveSummary": [
+    { "horizon": "30 días", "objective": "Definir y medir", "visibleResult": "Modelos, límites, KPIs base, responsabilidades y pilotos aprobados por dominio." },
+    { "horizon": "90 días", "objective": "Probar MVPs reales", "visibleResult": "Flujos operativos con usuarios piloto, auditoría, controles y evidencia trazable." },
+    { "horizon": "180 días", "objective": "Escalar integración", "visibleResult": "Automatización, eventos, reportes, costos, riesgos y capacidad conectados entre dominios." },
+    { "horizon": "365 días", "objective": "Optimizar con gobierno", "visibleResult": "Control towers, forecasts, IA asistida, multiempresa, métricas y ROI demostrable." }
+  ],
+  "finalMessage": "InflightOS debe crecer como una carretera de capacidades conectadas: cada estación agrega valor, pero solo avanza cuando la evidencia, los datos y los controles del tramo anterior son confiables."
+}

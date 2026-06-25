@@ -49,7 +49,6 @@ export type PresentationContent = {
   navigation: NavigationContent;
   home: { title: string; intro: string; systems: string[]; parts: ContentItem[]; recommendation: string };
   architecture: { summary: string; strengths: ContentItem[]; risks: ContentItem[]; deferred: ContentItem[]; priorities: ContentItem[] };
-  roadmap: { phases: Array<{ days: 30 | 90 | 180 | 365; title: string; deliverables: string[]; risks: string[]; exitCriteria: string[] }>; dependencies: ContentItem[]; hiring: ContentItem[] };
   integration: { systems: ContentItem[]; endpoint: { method: "POST"; path: "/mission-completed"; steps: string[]; errors: string[] }; events: EventContract[]; failureHandling: ContentItem[] };
   dataModeling: { entities: DataEntity[]; relationships: ContentItem[]; lifecycles: ContentItem[] };
   aiStrategy: { useNow: ContentItem[]; postpone: ContentItem[]; humanSupervision: ContentItem[]; doNotAutomate: ContentItem[]; guardrails: ContentItem[]; promotionCriteria: string[] };
