@@ -1,0 +1,30 @@
+{
+  "useNow": [
+    { "id": "style-transfer", "title": "Transferencia de look aprobado", "description": "Aplicar criterios del sample aprobado a imágenes del mismo lote, con editor validando el resultado.", "tone": "success" },
+    { "id": "visual-qa", "title": "QA visual asistido", "description": "Detectar blur, exposición, objetos no deseados y viewpoints faltantes antes de entrega.", "tone": "success" },
+    { "id": "weather-assist", "title": "Asistencia meteorológica", "description": "Recomendar ventanas de vuelo; la decisión final queda en operaciones.", "tone": "info" },
+    { "id": "asset-metadata", "title": "Clasificación de assets", "description": "Etiquetado y búsqueda para reducir trabajo manual y mejorar trazabilidad.", "tone": "info" }
+  ],
+  "postpone": [
+    { "id": "predictive-finance", "title": "Predicción financiera", "description": "Requiere historial confiable, rate cards y costos normalizados.", "tone": "warning" },
+    { "id": "general-chatbot", "title": "Chatbot general", "description": "No debe competir con el flujo operativo hasta tener casos de uso y ownership claros.", "tone": "warning" },
+    { "id": "advanced-analytics", "title": "Analítica predictiva corporativa", "description": "Primero deben existir modelos de lectura y métricas operativas consistentes.", "tone": "warning" }
+  ],
+  "humanSupervision": [
+    { "id": "sample-approval", "title": "Aprobación de samples", "description": "Cliente/editor conservan la decisión porque define el estándar creativo.", "tone": "success" },
+    { "id": "flight-window", "title": "Selección de ventana de vuelo", "description": "La IA sugiere; operaciones valida restricciones, permisos y clima.", "tone": "info" },
+    { "id": "qc-exceptions", "title": "Excepciones de QC", "description": "Casos ambiguos escalan a editor o PM antes de reprocesar o entregar.", "tone": "warning" }
+  ],
+  "doNotAutomate": [
+    { "id": "compliance", "title": "Decisiones regulatorias críticas", "description": "No automatizar aprobaciones de cumplimiento o permisos por riesgo legal.", "tone": "danger" },
+    { "id": "financial-approval", "title": "Aprobación financiera", "description": "No emitir decisiones de cobro, descuento o margen sin revisión humana.", "tone": "danger" },
+    { "id": "client-final-approval", "title": "Aprobación final del cliente", "description": "La aceptación contractual no debe depender de un modelo.", "tone": "danger" }
+  ],
+  "guardrails": [
+    { "id": "dataset", "title": "Dataset propio y versionado", "description": "Datos consentidos, representativos y trazables por tipo de entregable.", "tone": "info" },
+    { "id": "baseline", "title": "Baseline contra proceso actual", "description": "Promover IA solo si supera tiempo, calidad o retrabajo actual.", "tone": "success" },
+    { "id": "fallback", "title": "Fallback manual", "description": "Cada flujo asistido debe poder completarse sin IA.", "tone": "warning" },
+    { "id": "audit", "title": "Auditoría de decisiones", "description": "Registrar versión de modelo, input relevante y reviewer humano.", "tone": "info" }
+  ],
+  "promotionCriteria": ["Calidad superior al baseline manual", "Reducción medible de horas o retrabajo", "Fallback manual disponible", "Owner operativo asignado", "Riesgo legal y contractual aceptado"]
+}

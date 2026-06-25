@@ -1,0 +1,20 @@
+{
+  "phases": [
+    { "days": 30, "title": "Alinear y medir", "deliverables": ["Objetivo anual y value stream real", "Mapa de equipo, skills y ownership", "Contratos iniciales de datos y eventos", "Baseline de errores, retrabajo y tiempos"], "risks": ["Planear en abstracto", "No conocer restricciones regulatorias"], "exitCriteria": ["Backlog priorizado", "ADR de arquitectura inicial", "Métricas base aceptadas"] },
+    { "days": 90, "title": "MVP operativo", "deliverables": ["CRM + Project core", "MPO y Mission workflow", "Flight pilot controlado", "Audit log + Outbox", "Primeras pantallas internas"], "risks": ["Scope creep", "Integraciones sin owner"], "exitCriteria": ["Primer módulo funcional", "Cero incidentes críticos", "Stakeholders usando el flujo"] },
+    { "days": 180, "title": "Escalar producción", "deliverables": ["Media ingest", "Sample approval", "Image Automation", "Finance adapter", "Reportes operativos"], "risks": ["QC insuficiente", "Procesos manuales no documentados"], "exitCriteria": ["QC y retrabajo medidos", "Automatización por lotes auditada", "Facturación básica conectada"] },
+    { "days": 365, "title": "Plataforma robusta", "deliverables": ["Portal de arquitectos", "Entrega a cliente", "Red regional de pilotos", "Pilotos de IA medidos", "Analítica ejecutiva básica"], "risks": ["Construir módulos commodity", "Prometer IA sin datos"], "exitCriteria": ["Valor trimestral demostrado", "SLOs definidos", "Roadmap de IA con gates"] }
+  ],
+  "dependencies": [
+    { "id": "baseline-before-build", "title": "Baseline antes de escala", "description": "No avanzar a producción sin medir tiempos de ciclo, omisiones y retrabajo.", "tone": "warning" },
+    { "id": "sample-before-image", "title": "Sample antes de Image Automation", "description": "La automatización de imágenes solo escala después de un sample aprobado y versionado.", "tone": "danger" },
+    { "id": "outbox-before-events", "title": "Outbox antes de consumidores", "description": "Eventos confiables requieren persistencia, reintentos e idempotencia antes de fan-out.", "tone": "info" },
+    { "id": "data-before-ai", "title": "Datos antes de IA", "description": "Los casos avanzados dependen de datasets gobernados, consentidos y representativos.", "tone": "warning" }
+  ],
+  "hiring": [
+    { "id": "h-30", "title": "30 días: Platform/Product Lead", "description": "Cerrar alcance, decisiones y trade-offs con negocio.", "tone": "info" },
+    { "id": "h-90", "title": "90 días: Backend e Integration QA", "description": "Asegurar contratos, colas, observabilidad y pruebas de integración.", "tone": "success" },
+    { "id": "h-180", "title": "180 días: DevOps y ML/CV", "description": "Operar pipelines, storage, modelos asistidos y calidad visual.", "tone": "warning" },
+    { "id": "h-365", "title": "365 días: Product/Data roles", "description": "Escalar adopción, analítica, governance y customer delivery.", "tone": "neutral" }
+  ]
+}

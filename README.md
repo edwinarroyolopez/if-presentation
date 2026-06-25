@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IF Presentation
 
-## Getting Started
+Presentación pública y estática de InflightOS para evaluación técnica. No tiene login, autenticación, sesión, permisos, backend, API routes ni llamadas remotas.
 
-First, run the development server:
+## Rutas
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- `/`
+- `/architecture-review/`
+- `/roadmap/`
+- `/systems-integration/`
+- `/data-modeling/`
+- `/ai-strategy/`
+- `/executive-scenario/`
+- `/design-system/` es control interno y no forma parte de las seis partes.
+
+## Arquitectura
+
+- Next.js con App Router y `output: "export"`.
+- Contenido de producto en `src/data/*.json`.
+- Validación local con Zod en `src/lib/content`.
+- Componentes reutilizables en `src/components` y módulos por página en `src/modules`.
+- Diagramas construidos con HTML/CSS/React, sin librerías pesadas.
+
+## Comandos
+
+- `npm run dev`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test`
+- `npm run build`
+- `npm run test:e2e`
+- `npm run test:visual`
+
+## Netlify
+
+El build genera `out/`. Netlify usa:
+
+```toml
+[build]
+  command = "npm run build"
+  publish = "out"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Actualizar Contenido
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Edita el JSON correspondiente en `src/data/` y ejecuta `npm run test`. Para agregar una nueva sección dentro de una página, amplía el JSON existente y el módulo correspondiente sin romper el contrato de `src/lib/content/schema.ts`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Para agregar una nueva parte principal, actualiza `navigation.json`, el schema, las pruebas unitarias y una nueva ruta. No agregues una octava parte para la evaluación actual.

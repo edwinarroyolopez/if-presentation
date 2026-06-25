@@ -1,0 +1,28 @@
+{
+  "systems": [
+    { "id": "erp", "title": "ERP", "description": "Orquestador de proyectos, misiones, entregables, auditoría y facturación.", "tone": "success" },
+    { "id": "crm", "title": "CRM", "description": "Clientes, oportunidades, cotizaciones y handoff hacia proyectos.", "tone": "info" },
+    { "id": "flight-automation", "title": "Automatización de Vuelos", "description": "Planifica misiones, telemetría y finalización de captura.", "tone": "warning" },
+    { "id": "image-automation", "title": "Automatización de Imágenes", "description": "Ingesta medios, aplica sample aprobado y controla procesamiento por lotes.", "tone": "warning" },
+    { "id": "analytics", "title": "Analítica", "description": "Consume eventos y modelos de lectura para KPIs operativos y ejecutivos.", "tone": "info" },
+    { "id": "ai", "title": "IA", "description": "Asiste clasificación, QA visual y recomendaciones bajo supervisión humana.", "tone": "success" }
+  ],
+  "endpoint": {
+    "method": "POST",
+    "path": "/mission-completed",
+    "steps": ["Request con missionId e idempotency key", "Validación de misión existente y completable", "Transacción de cambio de estado", "Registro de auditoría", "Persistencia de evento Outbox", "Publicación de MissionCompleted", "Activación asíncrona de Image Automation", "Respuesta conceptual 202 Accepted"],
+    "errors": ["400 si falta idempotency key", "404 si no existe misión", "409 si la misión no es completable", "202 con estado waiting_for_sample si falta sample aprobado", "DLQ/replay si falla consumidor"]
+  },
+  "events": [
+    { "name": "MissionCompleted", "version": "1.0", "eventId": "evt_mission_01", "aggregateId": "mission:MIS-1042", "timestamp": "2026-06-25T20:02:12Z", "payload": { "missionId": "MIS-1042", "projectId": "PRJ-017", "completedBy": "usr-pilot-018" }, "producer": "Flight Ops", "consumers": ["Image Automation", "Analytics"], "idempotency": "UNIQUE consumer_name + event_id", "failureHandling": "Retry exponencial, DLQ y replay auditado." },
+    { "name": "MediaIngested", "version": "1.0", "eventId": "evt_media_01", "aggregateId": "mediaBatch:MB-8821", "timestamp": "2026-06-25T20:10:00Z", "payload": { "mediaBatchId": "MB-8821", "missionId": "MIS-1042", "assetCount": 216, "manifestChecksum": "sha256:example" }, "producer": "Media Service", "consumers": ["Image Automation", "Analytics"], "idempotency": "Checksum de manifest + event_id por consumidor.", "failureHandling": "Quarantine si checksum o contrato no coincide." },
+    { "name": "SampleApproved", "version": "1.0", "eventId": "evt_sample_01", "aggregateId": "sample:SMP-091", "timestamp": "2026-06-25T21:00:00Z", "payload": { "sampleId": "SMP-091", "mediaBatchId": "MB-8821", "approvedBy": "client-44", "styleVersion": 3 }, "producer": "Project Ops", "consumers": ["Image Automation", "Analytics"], "idempotency": "Un sample aprobado por batch y versión.", "failureHandling": "No procesar batch si el evento no existe; esperar o escalar." },
+    { "name": "InvoiceRequested", "version": "1.0", "eventId": "evt_invoice_01", "aggregateId": "project:PRJ-017", "timestamp": "2026-06-26T13:00:00Z", "payload": { "projectId": "PRJ-017", "milestoneId": "MS-06", "amount": 18000, "currency": "USD" }, "producer": "Project Ops", "consumers": ["Finance Adapter", "Analytics"], "idempotency": "Un invoice request por milestone facturable.", "failureHandling": "Reintento con conciliación financiera y alerta manual." }
+  ],
+  "failureHandling": [
+    { "id": "retries", "title": "Reintentos", "description": "Backoff exponencial por consumidor con límite y DLQ.", "tone": "info" },
+    { "id": "idempotency", "title": "Idempotencia", "description": "Inbox por consumidor, eventId estable y claves naturales por recurso.", "tone": "success" },
+    { "id": "audit", "title": "Auditoría", "description": "Cada transición crítica guarda actor, timestamp y correlación de evento.", "tone": "success" },
+    { "id": "observability", "title": "Observabilidad", "description": "Métricas de lag, duplicados, errores de contrato, latencia y DLQ.", "tone": "warning" }
+  ]
+}

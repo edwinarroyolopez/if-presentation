@@ -1,0 +1,32 @@
+{
+  "summary": "InflightOS debe comenzar como una plataforma modular orientada al flujo operativo que mueve ingresos: CRM, proyectos, misiones, medios, entregables y facturación. La arquitectura gana fuerza si los contratos de integración y eventos se definen antes de escalar módulos periféricos.",
+  "strengths": [
+    { "id": "crm-project-flow", "title": "Integración de CRM, ventas y proyectos", "description": "Conecta captación, oportunidad, alcance y ejecución en un flujo completo desde cliente hasta entrega.", "tone": "success" },
+    { "id": "flight-automation", "title": "Automatización de vuelos", "description": "Reduce errores humanos y acelera la captura de imágenes en ventanas críticas de operación.", "tone": "success" },
+    { "id": "image-automation", "title": "Automatización de imágenes con IA", "description": "Permite edición consistente a escala cuando existe sample aprobado y control de calidad humano.", "tone": "success" },
+    { "id": "unified-erp", "title": "ERP unificado", "description": "Centraliza datos financieros, operativos y de recursos humanos en una plataforma común.", "tone": "success" },
+    { "id": "analytics-ai-layer", "title": "Analítica y capa de IA", "description": "Habilita información estratégica para decisiones comerciales y operativas cuando los datos maduren.", "tone": "success" }
+  ],
+  "risks": [
+    { "id": "initial-complexity", "title": "Alta complejidad inicial", "description": "Construir demasiados módulos desde el inicio puede retrasar el flujo que genera valor temprano.", "tone": "danger" },
+    { "id": "flight-dependency", "title": "Dependencia de automatización de vuelos", "description": "Fallos técnicos, regulatorios u operativos afectan directamente la capacidad de entrega.", "tone": "danger" },
+    { "id": "interoperability", "title": "Interoperabilidad entre sistemas", "description": "Sin contratos versionados aparecen inconsistencias entre ERP, motores, analítica e IA.", "tone": "warning" },
+    { "id": "early-ai", "title": "Valor limitado de IA temprana", "description": "La IA no aporta resultados confiables si faltan datos propios, limpios y procesos estables.", "tone": "warning" },
+    { "id": "custom-erp-cost", "title": "Costo de ERP desde cero", "description": "Replicar software commodity consume recursos que deberían enfocarse en diferenciadores operativos.", "tone": "danger" }
+  ],
+  "deferred": [
+    { "id": "advanced-ai", "title": "Capa de IA avanzada", "description": "Posponer hasta tener datasets versionados, métricas base y procesos operativos estabilizados.", "tone": "warning" },
+    { "id": "hr-compliance", "title": "RR. HH. y cumplimiento completo", "description": "No son críticos para el arranque operativo; integrar primero y construir después si el volumen lo exige.", "tone": "warning" },
+    { "id": "advanced-analytics", "title": "Analítica avanzada", "description": "Comenzar con métricas operativas básicas antes de modelos predictivos o tableros ejecutivos complejos.", "tone": "warning" }
+  ],
+  "priorities": [
+    { "id": "p-flight", "title": "1. Automatización de vuelos", "description": "Prioridad principal por impacto directo en captura, errores y generación de ingresos.", "tone": "info" },
+    { "id": "p-erp-core", "title": "2. ERP mínimo CRM/Ventas/Proyectos", "description": "Ordena el flujo desde captación hasta entrega y crea la fuente de verdad operativa.", "tone": "info" },
+    { "id": "p-image", "title": "3. Automatización de imágenes", "description": "Escala producción después de asegurar samples, ingestión y control humano.", "tone": "info" },
+    { "id": "p-finance", "title": "4. Finanzas y facturación", "description": "Agregar cuando existan entregables, hitos y reglas de master data.", "tone": "neutral" },
+    { "id": "p-compliance", "title": "5. Cumplimiento y gestión regulatoria", "description": "Necesario para escalar vuelos, pero no debe bloquear el primer flujo controlado.", "tone": "neutral" },
+    { "id": "p-analytics", "title": "6. Analítica operativa", "description": "Primero reportes básicos, después analítica ejecutiva y predictiva.", "tone": "neutral" },
+    { "id": "p-hr", "title": "7. RR. HH. y capacidad", "description": "Integrar capacidad del equipo antes de construir un módulo completo.", "tone": "neutral" },
+    { "id": "p-ai", "title": "8. IA avanzada", "description": "Financiar solo después de datos gobernados y ROI medible.", "tone": "neutral" }
+  ]
+}

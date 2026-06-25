@@ -1,0 +1,21 @@
+{
+  "scenario": "La junta directiva quiere todos los módulos entregados dentro de 18 meses.",
+  "memo": "Recomiendo aceptar el objetivo de 18 meses como horizonte de plataforma, pero no aceptar una ejecución simultánea de todos los módulos. El compromiso correcto es entregar una secuencia de resultados de negocio: estabilizar Flight Operations y el core CRM/Project, integrar Image Automation después del sample aprobado, conectar finanzas por hitos y financiar IA avanzada únicamente con datos gobernados. Intentar todo a la vez maximiza riesgo, retrabajo y deuda operativa.",
+  "accept": ["Compromiso público de una plataforma operativa en 18 meses", "Entregas trimestrales con métricas", "Prioridad a Flight Operations, Project Ops e Image Automation"],
+  "negotiate": ["Definición de 'entregado' por módulo", "Capacidad de contratación por fase", "Gates para IA, analítica avanzada, HR y compliance completo"],
+  "postpone": ["IA avanzada transversal", "HR completo", "Analítica predictiva corporativa", "Automatización de decisiones regulatorias o financieras"],
+  "risks": ["Big bang funcional", "Equipos compitiendo por dependencias", "Calidad baja por falta de ownership", "Promesas de IA sin datos", "Costos de ERP commodity"],
+  "phases": [
+    { "id": "q1", "title": "0-3 meses: foco operativo", "description": "Baseline, Flight MVP, CRM/Project core, auditoría y eventos mínimos.", "tone": "success" },
+    { "id": "q2", "title": "3-6 meses: producción controlada", "description": "Media ingest, sample approval, Image Automation inicial y finanzas básicas.", "tone": "info" },
+    { "id": "q3-q4", "title": "6-12 meses: plataforma", "description": "Portales, reporting, pilotos regionales y hardening de integraciones.", "tone": "warning" },
+    { "id": "q5-q6", "title": "12-18 meses: expansión medida", "description": "IA acotada, governance, compliance ampliado y escalamiento de producto.", "tone": "neutral" }
+  ],
+  "metrics": [
+    { "id": "cycle-time", "title": "Tiempo captura → entrega", "description": "North star operativo para medir valor real.", "tone": "success" },
+    { "id": "rework", "title": "Tasa de retrabajo", "description": "Guardrail para no sacrificar calidad por velocidad.", "tone": "warning" },
+    { "id": "reliability", "title": "Confiabilidad de eventos", "description": "Lag, duplicados, DLQ y errores de contrato.", "tone": "info" },
+    { "id": "margin", "title": "Margen por proyecto", "description": "Validación de negocio antes de expandir módulos.", "tone": "success" }
+  ],
+  "decision": "Decisión recomendada: GO condicionado por fases, métricas y gates. No aprobar un big bang de todos los módulos en paralelo."
+}
