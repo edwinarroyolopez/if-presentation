@@ -33,7 +33,7 @@ test("home, CTA, menu, direct routes and content load", async ({ page }) => {
   await expect(page.getByRole("heading", { name: /InflightOS une/ })).toBeVisible();
   await page.getByRole("link", { name: /Comenzar presentación/ }).click();
   await expect(page).toHaveURL(/architecture-review\/$/);
-  await expect(page.getByRole("navigation", { name: "Partes de la presentación" }).getByRole("link")).toHaveCount(7);
+    await expect(page.getByRole("navigation", { name: "Partes de la presentación" }).getByRole("link")).toHaveCount(8);
 
   for (const [index, route] of routes.entries()) {
     await page.goto(route);
@@ -47,11 +47,16 @@ test("home, CTA, menu, direct routes and content load", async ({ page }) => {
   }
 
   await page.goto("/systems-integration/");
-  await page.getByRole("button", { name: /Ver detalle/ }).click();
-  await expect(page.getByText("POST", { exact: true })).toBeVisible();
-  await expect(page.getByText("/mission-completed", { exact: true })).toBeVisible();
-  for (const eventName of ["MissionCompleted", "MediaIngested", "SampleApproved", "InvoiceRequested"]) await expect(page.getByText(eventName).first()).toBeVisible();
-  await page.keyboard.press("Escape");
+  await expect(page.getByRole("heading", { name: "ERP como núcleo, conexiones por proyecto" })).toBeVisible();
+  await expect(page.getByText("InflightOS gobierna el contexto, los permisos y la trazabilidad")).toBeVisible();
+  await expect(page.getByText("InflightOS ERP")).toBeVisible();
+  await expect(page.getByText("Project Control Plane")).toBeVisible();
+  await expect(page.getByText("Project Connection")).toBeVisible();
+  await expect(page.getByText("API key revocable", { exact: true })).toBeVisible();
+  await expect(page.getByText("Permisos por scope", { exact: true })).toBeVisible();
+  for (const contract of ["API", "Evento", "Job / Queue", "Object Store"]) await expect(page.getByText(contract, { exact: true })).toBeVisible();
+  await expect(page.getByText("Ningún sistema escribe directamente en la base de datos de otro.")).toBeVisible();
+  for (const label of ["Flujo de negocio", "Contratos de integración", "Conexiones y permisos", "Resiliencia y trazabilidad"]) await expect(page.getByRole("button", { name: `Abrir ${label}` })).toBeVisible();
 
   await page.goto("/data-modeling/");
   await page.getByRole("button", { name: /Ver detalle/ }).click();
@@ -66,8 +71,7 @@ test("previous next progress and mobile drawer", async ({ page }) => {
   await page.getByRole("link", { name: "Anterior" }).click();
   await expect(page).toHaveURL(/roadmap\/$/);
 
-  await page.goto("/executive-scenario/");
-  await page.getByRole("link", { name: "Volver al inicio" }).click();
+  await page.goto("/");
   await expect(page).toHaveURL(/\/$/);
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -89,6 +93,50 @@ test("static direct routes smoke", async ({ page }) => {
   }
   await page.goto("/executive-scenario/");
   await expect(page.getByRole("heading", { name: /18 meses sí/ })).toBeVisible();
+});
+
+test("systems integration blueprint and dialogs", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/systems-integration/");
+  await expect(page.getByRole("heading", { name: "ERP como núcleo, conexiones por proyecto" })).toBeVisible();
+  await expect(page.locator("main.integration-blueprint")).toBeVisible();
+  await expect(page.locator(".connection-path")).toHaveAttribute("aria-label", "Project -> Project Connector Connection -> Connector");
+  await expect(page.getByText("API key revocable", { exact: true })).toBeVisible();
+  await expect(page.getByText("Permisos por scope", { exact: true })).toBeVisible();
+  await expect(page.getByText("Aislamiento por proyecto", { exact: true })).toBeVisible();
+  await expect(page.getByText("Auditoría y estado", { exact: true })).toBeVisible();
+  await expect(page.getByText("Flight Operations")).toBeVisible();
+  await expect(page.getByText("Image Engine")).toBeVisible();
+  await expect(page.getByText("AI Gateway")).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+
+  for (const label of ["Flujo de negocio", "Contratos de integración", "Conexiones y permisos", "Resiliencia y trazabilidad"]) {
+    const action = page.getByRole("button", { name: `Abrir ${label}` });
+    await action.focus();
+    await expect(action).toBeFocused();
+    await expect(page.getByText(label).first()).toBeVisible();
+    await action.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.getByRole("dialog")).toContainText(label);
+    if (label === "Conexiones y permisos") {
+      await expect(page.getByRole("dialog")).toContainText("Autenticación");
+      await expect(page.getByRole("dialog")).toContainText("Autorización");
+      await expect(page.getByRole("dialog")).toContainText("project.*");
+      await expect(page.getByRole("dialog")).toContainText("OAuth2 client credentials");
+    }
+    if (label === "Contratos de integración") {
+      for (const eventName of ["OpportunityWon.v1", "ProjectCreated.v1", "MissionReviewedClosed.v1", "SampleApproved.v1", "DeliverableApproved.v1", "InvoiceRequested.v1"]) await expect(page.getByRole("dialog")).toContainText(eventName);
+    }
+    if (label === "Resiliencia y trazabilidad") {
+      for (const traceId of ["requestId", "correlationId", "eventId", "organizationId", "projectId", "resourceId"]) await expect(page.getByRole("dialog")).toContainText(traceId);
+    }
+    await page.keyboard.press("Escape");
+    await expect(action).toBeFocused();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  }
+
+  const noOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  expect(noOverflow).toBe(true);
 });
 
 test("roadmap portfolio and project routes", async ({ page }) => {

@@ -1,28 +1,125 @@
 {
-  "systems": [
-    { "id": "erp", "title": "ERP", "description": "Orquestador de proyectos, misiones, entregables, auditoría y facturación.", "tone": "success" },
-    { "id": "crm", "title": "CRM", "description": "Clientes, oportunidades, cotizaciones y handoff hacia proyectos.", "tone": "info" },
-    { "id": "flight-automation", "title": "Automatización de Vuelos", "description": "Planifica misiones, telemetría y finalización de captura.", "tone": "warning" },
-    { "id": "image-automation", "title": "Automatización de Imágenes", "description": "Ingesta medios, aplica sample aprobado y controla procesamiento por lotes.", "tone": "warning" },
-    { "id": "analytics", "title": "Analítica", "description": "Consume eventos y modelos de lectura para KPIs operativos y ejecutivos.", "tone": "info" },
-    { "id": "ai", "title": "IA", "description": "Asiste clasificación, QA visual y recomendaciones bajo supervisión humana.", "tone": "success" }
-  ],
-  "endpoint": {
-    "method": "POST",
-    "path": "/mission-completed",
-    "steps": ["Request con missionId e idempotency key", "Validación de misión existente y completable", "Transacción de cambio de estado", "Registro de auditoría", "Persistencia de evento Outbox", "Publicación de MissionCompleted", "Activación asíncrona de Image Automation", "Respuesta conceptual 202 Accepted"],
-    "errors": ["400 si falta idempotency key", "404 si no existe misión", "409 si la misión no es completable", "202 con estado waiting_for_sample si falta sample aprobado", "DLQ/replay si falla consumidor"]
+  "title": "ERP como núcleo, conexiones por proyecto",
+  "thesis": "InflightOS gobierna el contexto, los permisos y la trazabilidad. Cada proyecto habilita conexiones server-to-server mediante credenciales revocables y scopes; APIs, eventos y colas coordinan los dominios sin compartir bases de datos.",
+  "core": {
+    "title": "InflightOS ERP",
+    "subtitle": "Project Control Plane",
+    "context": ["Project", "MPO", "Deliverable", "Billing"],
+    "governance": ["Identity", "Permissions", "Audit", "References"],
+    "description": "Contexto empresarial, permisos, auditoría y referencias hacia misiones, lotes y conexiones. No ejecuta vuelos ni procesa imágenes."
   },
-  "events": [
-    { "name": "MissionCompleted", "version": "1.0", "eventId": "evt_mission_01", "aggregateId": "mission:MIS-1042", "timestamp": "2026-06-25T20:02:12Z", "payload": { "missionId": "MIS-1042", "projectId": "PRJ-017", "completedBy": "usr-pilot-018" }, "producer": "Flight Ops", "consumers": ["Image Automation", "Analytics"], "idempotency": "UNIQUE consumer_name + event_id", "failureHandling": "Retry exponencial, DLQ y replay auditado." },
-    { "name": "MediaIngested", "version": "1.0", "eventId": "evt_media_01", "aggregateId": "mediaBatch:MB-8821", "timestamp": "2026-06-25T20:10:00Z", "payload": { "mediaBatchId": "MB-8821", "missionId": "MIS-1042", "assetCount": 216, "manifestChecksum": "sha256:example" }, "producer": "Media Service", "consumers": ["Image Automation", "Analytics"], "idempotency": "Checksum de manifest + event_id por consumidor.", "failureHandling": "Quarantine si checksum o contrato no coincide." },
-    { "name": "SampleApproved", "version": "1.0", "eventId": "evt_sample_01", "aggregateId": "sample:SMP-091", "timestamp": "2026-06-25T21:00:00Z", "payload": { "sampleId": "SMP-091", "mediaBatchId": "MB-8821", "approvedBy": "client-44", "styleVersion": 3 }, "producer": "Project Ops", "consumers": ["Image Automation", "Analytics"], "idempotency": "Un sample aprobado por batch y versión.", "failureHandling": "No procesar batch si el evento no existe; esperar o escalar." },
-    { "name": "InvoiceRequested", "version": "1.0", "eventId": "evt_invoice_01", "aggregateId": "project:PRJ-017", "timestamp": "2026-06-26T13:00:00Z", "payload": { "projectId": "PRJ-017", "milestoneId": "MS-06", "amount": 18000, "currency": "USD" }, "producer": "Project Ops", "consumers": ["Finance Adapter", "Analytics"], "idempotency": "Un invoice request por milestone facturable.", "failureHandling": "Reintento con conciliación financiera y alerta manual." }
+  "connection": {
+    "title": "Project Connection",
+    "subtitle": "Project -> Project Connector Connection -> Connector",
+    "description": "Recurso gobernado por proyecto que autentica la conexión, limita capacidades y deja trazabilidad por acción.",
+    "signals": ["API key revocable", "Permisos por scope", "Aislamiento por proyecto", "Auditoría y estado"],
+    "attributes": ["projectKey", "connector", "host", "status", "permissionScopes", "auditTrail"],
+    "formula": [
+      "API key = identidad/autenticación de la conexión",
+      "Permisos/scopes = operaciones autorizadas",
+      "Project scope = límite funcional y de datos",
+      "Auditoría = trazabilidad de cada acción"
+    ]
+  },
+  "domains": [
+    { "id": "crm", "title": "CRM", "responsibility": "Clientes y oportunidades", "icon": "handshake", "contract": "event" },
+    { "id": "flight-ops", "title": "Flight Operations", "responsibility": "Lifecycle de Mission", "icon": "clipboard-check", "contract": "api" },
+    { "id": "flight-engine", "title": "Flight Engine", "responsibility": "Plan, ejecución y telemetría", "icon": "plane", "contract": "job" },
+    { "id": "image-ops", "title": "Image Operations", "responsibility": "Lote, sample, QC y entregable", "icon": "image", "contract": "event" },
+    { "id": "image-engine", "title": "Image Engine", "responsibility": "Procesamiento CPU/GPU", "icon": "cpu", "contract": "object" },
+    { "id": "analytics", "title": "Analytics", "responsibility": "Read models, histórico y métricas", "icon": "bar-chart", "contract": "event" },
+    { "id": "ai-gateway", "title": "AI Gateway", "responsibility": "Recomendaciones con supervisión", "icon": "sparkles", "contract": "api" }
   ],
-  "failureHandling": [
-    { "id": "retries", "title": "Reintentos", "description": "Backoff exponencial por consumidor con límite y DLQ.", "tone": "info" },
-    { "id": "idempotency", "title": "Idempotencia", "description": "Inbox por consumidor, eventId estable y claves naturales por recurso.", "tone": "success" },
-    { "id": "audit", "title": "Auditoría", "description": "Cada transición crítica guarda actor, timestamp y correlación de evento.", "tone": "success" },
-    { "id": "observability", "title": "Observabilidad", "description": "Métricas de lag, duplicados, errores de contrato, latencia y DLQ.", "tone": "warning" }
-  ]
+  "contracts": [
+    { "id": "api", "label": "API", "title": "Síncrono", "description": "Intención y estado actual" },
+    { "id": "event", "label": "Evento", "title": "Asíncrono", "description": "Hecho ya confirmado" },
+    { "id": "job", "label": "Job / Queue", "title": "Trabajo", "description": "Trabajo largo y recuperable" },
+    { "id": "object", "label": "Object Store", "title": "Archivo", "description": "Archivos y resultados pesados" }
+  ],
+  "dialogs": [
+    {
+      "id": "business-flow",
+      "label": "Flujo de negocio",
+      "title": "Flujo de negocio",
+      "eyebrow": "End-to-end",
+      "icon": "route",
+      "sections": [
+        {
+          "title": "Cadena operativa",
+          "items": ["Prospecto", "Cliente", "Oportunidad", "Venta ganada", "Proyecto", "Misión", "Vuelo", "Captura revisada", "Procesamiento de imágenes", "Entregable", "Solicitud de factura", "Analítica", "Recomendaciones de IA"]
+        },
+        {
+          "title": "Regla de lectura",
+          "items": ["El proyecto vive en ERP como contexto empresarial.", "Flight e Image conservan los estados internos de misión, lote, sample y procesamiento.", "Analytics e IA consumen datos autorizados sin bloquear la operación."]
+        }
+      ]
+    },
+    {
+      "id": "integration-contracts",
+      "label": "Contratos de integración",
+      "title": "Contratos de integración",
+      "eyebrow": "APIs · eventos · colas · storage",
+      "icon": "workflow",
+      "sections": [
+        {
+          "title": "Mecanismos",
+          "items": ["APIs versionadas para intención, validación y estado actual.", "Eventos de dominio para hechos confirmados e idempotentes.", "Colas de comandos para trabajo largo con destinatario principal.", "Object storage para archivos pesados y resultados, con referencias seguras.", "Sockets solo avisan a la interfaz; REST vuelve a consultar el estado actual."]
+        },
+        {
+          "title": "Eventos representativos",
+          "items": ["OpportunityWon.v1", "ProjectCreated.v1", "MissionReviewedClosed.v1", "SampleApproved.v1", "DeliverableApproved.v1", "InvoiceRequested.v1"]
+        },
+        {
+          "title": "Autonomía",
+          "items": ["CRM -> ERP mantiene idempotencia de conversión.", "ERP conserva referencias de misión sin controlar estados internos.", "Los dominios publican contratos versionados y validados."]
+        }
+      ]
+    },
+    {
+      "id": "connections-permissions",
+      "label": "Conexiones y permisos",
+      "title": "Conexiones y permisos",
+      "eyebrow": "Connector boundary",
+      "icon": "key-round",
+      "sections": [
+        {
+          "title": "Conexión gobernada",
+          "items": ["Conexión asociada a un proyecto.", "API key revocable para autenticar la conexión server-to-server.", "Permisos por capacidad: project.*, flight.*, image.*, analytics.*, ai.*, finance.*.", "Scope de organización y proyecto como límite de datos.", "Estados controlados: activa, bloqueada o revocada."]
+        },
+        {
+          "title": "Separación obligatoria",
+          "items": ["Autenticación: identidad de la conexión.", "Autorización: operaciones permitidas por scopes.", "Scope: organización, proyecto y recurso autorizado.", "Auditoría: requestId, actor técnico y acción trazable."]
+        },
+        {
+          "title": "Protección de secretos",
+          "items": ["Rotación y revocación sin tocar datos de dominio.", "No mostrar secretos completos en logs, auditoría o vistas generales.", "Reveal explícito solo cuando corresponda.", "Servicios internos pueden usar OAuth2 client credentials, JWT técnico, service accounts limitadas o mTLS según el boundary."]
+        }
+      ]
+    },
+    {
+      "id": "resilience-traceability",
+      "label": "Resiliencia y trazabilidad",
+      "title": "Resiliencia y trazabilidad",
+      "eyebrow": "Operación confiable",
+      "icon": "activity",
+      "sections": [
+        {
+          "title": "Resiliencia",
+          "items": ["Outbox transaccional en publicadores.", "Consumidores idempotentes con registro de eventId.", "Retry exponencial, DLQ y replay controlado.", "Circuit breaker, reconciliación y fallback manual."]
+        },
+        {
+          "title": "Trazabilidad mínima",
+          "items": ["requestId", "correlationId", "eventId", "organizationId", "projectId", "resourceId"]
+        },
+        {
+          "title": "Ownership",
+          "items": ["Cada integración crítica tiene owner funcional y técnico.", "Contrato, SLO, observabilidad, dashboard y runbook.", "Escalamiento y responsable de incidentes definidos."]
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "primary": "El ERP conserva contexto y gobierno; cada dominio conserva su fuente de verdad.",
+    "secondary": "Ningún sistema escribe directamente en la base de datos de otro."
+  }
 }

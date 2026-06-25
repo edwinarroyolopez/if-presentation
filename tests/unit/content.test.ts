@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getNavigationItems, getPresentationContent, getPreviousNext, getRouteProgress, isRouteActive } from "@/lib/content";
 import { buildCatmullRomPath, computeRoadmapLayout } from "@/components/roadmap/roadmap-layout";
 import { getRoadmapBySlug, getRoadmapProjectNavigation, getRoadmapProjects, getRoadmapStaticParams } from "@/lib/roadmaps/roadmap-registry";
+import { integrationSchema } from "@/lib/content/schema";
 
 describe("presentation content contract", () => {
   const content = getPresentationContent();
@@ -30,9 +31,38 @@ describe("presentation content contract", () => {
     expect(content.architecture.deferred).toHaveLength(3);
   });
 
-  it("keeps required integration systems and events", () => {
-    expect(content.integration.systems.map((system) => system.title)).toEqual(["ERP", "CRM", "Automatización de Vuelos", "Automatización de Imágenes", "Analítica", "IA"]);
-    expect(content.integration.events.map((event) => event.name)).toEqual(["MissionCompleted", "MediaIngested", "SampleApproved", "InvoiceRequested"]);
+  it("keeps required integration blueprint content", () => {
+    expect(content.integration.title).toBe("ERP como núcleo, conexiones por proyecto");
+    expect(content.integration.thesis).toContain("credenciales revocables y scopes");
+    expect(content.integration.core.title).toBe("InflightOS ERP");
+    expect(content.integration.core.subtitle).toBe("Project Control Plane");
+    expect(content.integration.core.description).toContain("No ejecuta vuelos ni procesa imágenes");
+    expect(content.integration.connection.title).toBe("Project Connection");
+    expect(content.integration.connection.subtitle).toBe("Project -> Project Connector Connection -> Connector");
+    expect(content.integration.connection.formula).toEqual([
+      "API key = identidad/autenticación de la conexión",
+      "Permisos/scopes = operaciones autorizadas",
+      "Project scope = límite funcional y de datos",
+      "Auditoría = trazabilidad de cada acción",
+    ]);
+    expect(content.integration.domains.map((domain) => domain.id)).toEqual(["crm", "flight-ops", "flight-engine", "image-ops", "image-engine", "analytics", "ai-gateway"]);
+    expect(content.integration.contracts.map((contract) => contract.id)).toEqual(["api", "event", "job", "object"]);
+    expect(content.integration.dialogs.map((dialog) => dialog.id)).toEqual(["business-flow", "integration-contracts", "connections-permissions", "resilience-traceability"]);
+    expect(content.integration.footer.secondary).toContain("Ningún sistema escribe directamente");
+  });
+
+  it("rejects invalid integration schema changes", () => {
+    const missingProjectConnection = structuredClone(content.integration);
+    missingProjectConnection.connection.title = "Connector Runtime";
+    expect(integrationSchema.safeParse(missingProjectConnection).success).toBe(false);
+
+    const collapsedAuthorization = structuredClone(content.integration);
+    collapsedAuthorization.connection.formula[1] = "API key autoriza todas las operaciones";
+    expect(integrationSchema.safeParse(collapsedAuthorization).success).toBe(false);
+
+    const missingObjectStore = structuredClone(content.integration);
+    missingObjectStore.contracts = missingObjectStore.contracts.filter((contract) => contract.id !== "object");
+    expect(integrationSchema.safeParse(missingObjectStore).success).toBe(false);
   });
 
   it("keeps required data entities", () => {
