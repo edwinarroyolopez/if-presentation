@@ -8,6 +8,7 @@ const slideArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation
 const systemsIntegrationArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-systems-integration/visual");
 const dataModelingArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-data-modeling/visual");
 const aiStrategyArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-ai-strategy/visual");
+const architectureReviewArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-architecture-review/visual");
 const shots = [
   ["/", "home-desktop.png"],
   ["/architecture-review/", "architecture-desktop.png"],
@@ -18,7 +19,7 @@ const shots = [
   ["/executive-scenario/", "executive-desktop.png"],
 ] as const;
 
-test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); mkdirSync(systemsIntegrationArtifactDir, { recursive: true }); mkdirSync(dataModelingArtifactDir, { recursive: true }); mkdirSync(aiStrategyArtifactDir, { recursive: true }); });
+test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); mkdirSync(systemsIntegrationArtifactDir, { recursive: true }); mkdirSync(dataModelingArtifactDir, { recursive: true }); mkdirSync(aiStrategyArtifactDir, { recursive: true }); mkdirSync(architectureReviewArtifactDir, { recursive: true }); });
 
 for (const [route, file] of shots) {
   test(`captures ${file}`, async ({ page }) => {
@@ -100,6 +101,32 @@ test("captures systems integration required viewports", async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/systems-integration/");
     await page.screenshot({ fullPage: true, path: resolve(systemsIntegrationArtifactDir, viewport.name) });
+  }
+});
+
+test("captures architecture review required evidence", async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 900, name: "architecture-review-desktop.png" },
+    { width: 1366, height: 768, name: "architecture-review-low-height.png" },
+    { width: 1920, height: 1080, name: "architecture-review-1920x1080.png" },
+    { width: 390, height: 844, name: "architecture-review-mobile.png" },
+  ]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/architecture-review/");
+    await page.screenshot({ fullPage: true, path: resolve(architectureReviewArtifactDir, viewport.name) });
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/architecture-review/");
+  for (const [label, file] of [
+    ["Fortalezas", "architecture-review-dialog-strengths.png"],
+    ["Riesgos", "architecture-review-dialog-risks.png"],
+    ["Fuera del MVP", "architecture-review-dialog-deferred.png"],
+    ["Prioridades", "architecture-review-dialog-priorities.png"],
+  ] as const) {
+    await page.getByRole("button", { name: `Abrir ${label}` }).click();
+    await page.screenshot({ fullPage: true, path: resolve(architectureReviewArtifactDir, file) });
+    await page.keyboard.press("Escape");
   }
 });
 

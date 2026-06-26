@@ -140,6 +140,59 @@ test("systems integration blueprint and dialogs", async ({ page }) => {
   expect(noOverflow).toBe(true);
 });
 
+test("architecture review premium slide and dialogs", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/architecture-review/");
+  await expect(page.getByRole("heading", { name: "Revisión de arquitectura InflightOS" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Primero, el núcleo operativo que mueve ingresos." })).toBeVisible();
+  await expect(page.locator(".presentation-slide-meta").getByText("8 prioridades", { exact: true })).toBeVisible();
+  await expect(page.locator(".presentation-slide-meta").getByText("3 frentes MVP", { exact: true })).toBeVisible();
+  for (const priority of ["Automatización de vuelos", "ERP mínimo integrado", "Automatización de imágenes"]) await expect(page.locator(".architecture-sequence-list").getByText(priority, { exact: true })).toBeVisible();
+  for (const forbidden of ["Monolito modular", "Bounded contexts", "Outbox", "Scopes", "Gates"]) await expect(page.getByText(forbidden)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Ver detalle/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Abrir Riesgos" })).toHaveCount(1);
+
+  const dialogExpectations = [
+    { label: "Fortalezas", title: "5 fortalezas", texts: ["Integración de CRM, ventas y gestión de proyectos", "ERP unificado", "Capa de analítica e inteligencia artificial"] },
+    { label: "Riesgos", title: "5 riesgos", texts: ["Alta complejidad inicial por múltiples módulos", "Dependencia de automatización de vuelos", "Alto costo de desarrollar un ERP desde cero"] },
+    { label: "Fuera del MVP", title: "3 áreas fuera del MVP inicial", texts: ["Capa de IA avanzada", "Módulos de recursos humanos y cumplimiento", "Analítica avanzada"] },
+    { label: "Prioridades", title: "Secuencia completa de prioridades", texts: ["01", "02", "03", "04", "05", "06", "07", "08", "MVP inicial", "Secuencia posterior"] },
+  ];
+
+  for (const expectation of dialogExpectations) {
+    const action = page.getByRole("button", { name: `Abrir ${expectation.label}` });
+    await expect(action).toHaveAttribute("aria-label", `Abrir ${expectation.label}`);
+    await action.focus();
+    await expect(action).toBeFocused();
+    await expect(page.getByText(expectation.label).first()).toBeVisible();
+    await action.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.getByRole("dialog")).toContainText(expectation.title);
+    for (const text of expectation.texts) await expect(page.getByRole("dialog")).toContainText(text);
+    await page.keyboard.press("Tab");
+    const activeInsideDialog = await page.evaluate(() => Boolean(document.activeElement?.closest("dialog")));
+    expect(activeInsideDialog).toBe(true);
+    await page.keyboard.press("Escape");
+    await expect(action).toBeFocused();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  }
+
+  const noInternalOverflow = await page.locator(".presentation-slide-body").evaluate((body) => body.scrollHeight <= body.clientHeight + 1);
+  expect(noInternalOverflow).toBe(true);
+  const noHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  expect(noHorizontalOverflow).toBe(true);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/architecture-review/");
+  await expect(page.getByRole("button", { name: /Información/ })).toBeVisible();
+  await page.getByRole("button", { name: /Información/ }).click();
+  await expect(page.getByRole("dialog")).toContainText("Información de arquitectura");
+  await expect(page.getByRole("dialog")).toContainText("Fortalezas");
+  await page.keyboard.press("Escape");
+  const mobileNoOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  expect(mobileNoOverflow).toBe(true);
+});
+
 test("data modeling v2 slide and dialogs", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/data-modeling/");

@@ -7,6 +7,37 @@ export type ContentItem = {
   tone?: Tone;
 };
 
+export type ArchitecturePriorityIcon = "plane" | "building" | "images" | "finance" | "compliance" | "analytics" | "people" | "ai";
+
+export type ArchitecturePriority = {
+  id: string;
+  order: number;
+  title: string;
+  shortTitle: string;
+  description: string;
+  detail: string;
+  icon: ArchitecturePriorityIcon;
+  phase: "mvp" | "later";
+};
+
+export type ArchitectureItem = Omit<ContentItem, "tone"> & { shortTitle?: string };
+
+export type ArchitectureContent = {
+  sourceDocument: "docs/F1-archictecture-review.md";
+  eyebrow: string;
+  title: string;
+  thesis: string;
+  metadata: string[];
+  decision: { kicker: string; headline: string; summary: string };
+  primaryRisk: { label: string; text: string };
+  footerInsight: { label: string; text: string; badge: string };
+  dialogs: Record<"strengths" | "risks" | "deferred" | "priorities", { label: string; title: string; eyebrow: string }>;
+  strengths: ArchitectureItem[];
+  risks: ArchitectureItem[];
+  deferred: (ArchitectureItem & { shortTitle: string })[];
+  priorities: ArchitecturePriority[];
+};
+
 export type AIStrategyIcon = "activity" | "badge-check" | "bar-chart" | "bot" | "braces" | "database" | "file-text" | "gateway" | "handshake" | "image" | "landmark" | "list-checks" | "plane" | "scale" | "scan-check" | "shield-check" | "sparkles" | "user-check" | "users";
 
 export type AIStrategyArchitectureStep = {
@@ -187,7 +218,7 @@ export type DataModelingContent = {
 export type PresentationContent = {
   navigation: NavigationContent;
   home: { title: string; intro: string; systems: string[]; parts: ContentItem[]; recommendation: string };
-  architecture: { summary: string; strengths: ContentItem[]; risks: ContentItem[]; deferred: ContentItem[]; priorities: ContentItem[] };
+  architecture: ArchitectureContent;
   integration: IntegrationContent;
   dataModeling: DataModelingContent;
   aiStrategy: AIStrategyContent;

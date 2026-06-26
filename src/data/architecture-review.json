@@ -1,32 +1,56 @@
 {
-  "summary": "InflightOS debe comenzar como una plataforma modular orientada al flujo operativo que mueve ingresos: CRM, proyectos, misiones, medios, entregables y facturación. La arquitectura gana fuerza si los contratos de integración y eventos se definen antes de escalar módulos periféricos.",
+  "sourceDocument": "docs/F1-archictecture-review.md",
+  "eyebrow": "Parte 1 · Arquitectura",
+  "title": "Revisión de arquitectura InflightOS",
+  "thesis": "La primera versión debe concentrarse en el núcleo operativo que mueve ingresos antes de ampliar módulos avanzados.",
+  "metadata": ["8 prioridades", "3 frentes MVP"],
+  "decision": {
+    "kicker": "Decisión ejecutiva",
+    "headline": "Primero, el núcleo operativo que mueve ingresos.",
+    "summary": "Concentrar el MVP en automatización de vuelos, ERP mínimo integrado con CRM, ventas y gestión de proyectos, y automatización de imágenes. Esa secuencia ordena el flujo desde la captación hasta la entrega."
+  },
+  "primaryRisk": {
+    "label": "Riesgo principal",
+    "text": "Intentar construir demasiados módulos desde el inicio aumenta la complejidad y puede retrasar la entrega de las capacidades esenciales."
+  },
+  "footerInsight": {
+    "label": "Criterio de priorización",
+    "text": "Priorizar impacto operativo e ingresos antes de ampliar el alcance.",
+    "badge": "MVP primero"
+  },
+  "dialogs": {
+    "strengths": { "label": "Fortalezas", "title": "5 fortalezas", "eyebrow": "Diagnóstico F1" },
+    "risks": { "label": "Riesgos", "title": "5 riesgos", "eyebrow": "Diagnóstico F1" },
+    "deferred": { "label": "Fuera del MVP", "title": "3 áreas fuera del MVP inicial", "eyebrow": "Secuencia posterior" },
+    "priorities": { "label": "Prioridades", "title": "Secuencia completa de prioridades", "eyebrow": "1 a 8" }
+  },
   "strengths": [
-    { "id": "crm-project-flow", "title": "Integración de CRM, ventas y proyectos", "description": "Conecta captación, oportunidad, alcance y ejecución en un flujo completo desde cliente hasta entrega.", "tone": "success" },
-    { "id": "flight-automation", "title": "Automatización de vuelos", "description": "Reduce errores humanos y acelera la captura de imágenes en ventanas críticas de operación.", "tone": "success" },
-    { "id": "image-automation", "title": "Automatización de imágenes con IA", "description": "Permite edición consistente a escala cuando existe sample aprobado y control de calidad humano.", "tone": "success" },
-    { "id": "unified-erp", "title": "ERP unificado", "description": "Centraliza datos financieros, operativos y de recursos humanos en una plataforma común.", "tone": "success" },
-    { "id": "analytics-ai-layer", "title": "Analítica y capa de IA", "description": "Habilita información estratégica para decisiones comerciales y operativas cuando los datos maduren.", "tone": "success" }
+    { "id": "strength-crm-sales-projects", "title": "Integración de CRM, ventas y gestión de proyectos", "description": "Permite gestionar un flujo completo, desde la captación de clientes hasta la entrega final del proyecto." },
+    { "id": "strength-flight-automation", "title": "Automatización de vuelos", "description": "Reduce los errores humanos y acelera el proceso de captura de imágenes." },
+    { "id": "strength-ai-image-automation", "title": "Automatización de imágenes con inteligencia artificial", "description": "Garantiza una edición consistente y eficiente, incluso cuando se trabaja a gran escala." },
+    { "id": "strength-unified-erp", "title": "ERP unificado", "description": "Centraliza los datos financieros, operativos y de recursos humanos en una sola plataforma." },
+    { "id": "strength-analytics-ai-layer", "title": "Capa de analítica e inteligencia artificial", "description": "Proporciona información estratégica para optimizar la toma de decisiones comerciales y operativas." }
   ],
   "risks": [
-    { "id": "initial-complexity", "title": "Alta complejidad inicial", "description": "Construir demasiados módulos desde el inicio puede retrasar el flujo que genera valor temprano.", "tone": "danger" },
-    { "id": "flight-dependency", "title": "Dependencia de automatización de vuelos", "description": "Fallos técnicos, regulatorios u operativos afectan directamente la capacidad de entrega.", "tone": "danger" },
-    { "id": "interoperability", "title": "Interoperabilidad entre sistemas", "description": "Sin contratos versionados aparecen inconsistencias entre ERP, motores, analítica e IA.", "tone": "warning" },
-    { "id": "early-ai", "title": "Valor limitado de IA temprana", "description": "La IA no aporta resultados confiables si faltan datos propios, limpios y procesos estables.", "tone": "warning" },
-    { "id": "custom-erp-cost", "title": "Costo de ERP desde cero", "description": "Replicar software commodity consume recursos que deberían enfocarse en diferenciadores operativos.", "tone": "danger" }
+    { "id": "risk-initial-complexity", "title": "Alta complejidad inicial por múltiples módulos", "description": "Abarcar tantos componentes desde el inicio puede generar complejidad y retrasos en el desarrollo." },
+    { "id": "risk-flight-dependency", "title": "Dependencia de automatización de vuelos", "description": "Existe riesgo si la tecnología no está lo suficientemente madura o falla en producción." },
+    { "id": "risk-interoperability", "title": "Problemas de interoperabilidad entre sistemas", "description": "La integración entre ERP, inteligencia artificial y automatizaciones puede generar fallos técnicos o inconsistencias." },
+    { "id": "risk-early-ai-value", "title": "Valor limitado de la capa de IA en etapas tempranas", "description": "La inteligencia artificial podría no aportar resultados inmediatos si no se cuenta con datos suficientes o bien estructurados." },
+    { "id": "risk-custom-erp-cost", "title": "Alto costo de desarrollar un ERP desde cero", "description": "Construir un ERP personalizado puede consumir muchos recursos y retrasar la entrega de funcionalidades clave." }
   ],
   "deferred": [
-    { "id": "advanced-ai", "title": "Capa de IA avanzada", "description": "Posponer hasta tener datasets versionados, métricas base y procesos operativos estabilizados.", "tone": "warning" },
-    { "id": "hr-compliance", "title": "RR. HH. y cumplimiento completo", "description": "No son críticos para el arranque operativo; integrar primero y construir después si el volumen lo exige.", "tone": "warning" },
-    { "id": "advanced-analytics", "title": "Analítica avanzada", "description": "Comenzar con métricas operativas básicas antes de modelos predictivos o tableros ejecutivos complejos.", "tone": "warning" }
+    { "id": "deferred-advanced-ai", "title": "Capa de IA avanzada", "shortTitle": "IA avanzada", "description": "Debería posponerse hasta contar con datos consistentes y procesos operativos estabilizados." },
+    { "id": "deferred-hr-compliance", "title": "Módulos de recursos humanos y cumplimiento", "shortTitle": "RR. HH. y cumplimiento", "description": "Pueden implementarse en una fase posterior, ya que no son críticos para el inicio operativo del sistema." },
+    { "id": "deferred-advanced-analytics", "title": "Analítica avanzada", "shortTitle": "Analítica avanzada", "description": "Es recomendable aplazarla y enfocarse primero en los flujos esenciales como CRM, ventas y gestión de entregas." }
   ],
   "priorities": [
-    { "id": "p-flight", "title": "1. Automatización de vuelos", "description": "Prioridad principal por impacto directo en captura, errores y generación de ingresos.", "tone": "info" },
-    { "id": "p-erp-core", "title": "2. ERP mínimo CRM/Ventas/Proyectos", "description": "Ordena el flujo desde captación hasta entrega y crea la fuente de verdad operativa.", "tone": "info" },
-    { "id": "p-image", "title": "3. Automatización de imágenes", "description": "Escala producción después de asegurar samples, ingestión y control humano.", "tone": "info" },
-    { "id": "p-finance", "title": "4. Finanzas y facturación", "description": "Agregar cuando existan entregables, hitos y reglas de master data.", "tone": "neutral" },
-    { "id": "p-compliance", "title": "5. Cumplimiento y gestión regulatoria", "description": "Necesario para escalar vuelos, pero no debe bloquear el primer flujo controlado.", "tone": "neutral" },
-    { "id": "p-analytics", "title": "6. Analítica operativa", "description": "Primero reportes básicos, después analítica ejecutiva y predictiva.", "tone": "neutral" },
-    { "id": "p-hr", "title": "7. RR. HH. y capacidad", "description": "Integrar capacidad del equipo antes de construir un módulo completo.", "tone": "neutral" },
-    { "id": "p-ai", "title": "8. IA avanzada", "description": "Financiar solo después de datos gobernados y ROI medible.", "tone": "neutral" }
+    { "id": "priority-flight-automation", "order": 1, "title": "Automatización de vuelos", "shortTitle": "Automatización de vuelos", "description": "Reduce errores humanos y acelera la captura de imágenes.", "detail": "Es la prioridad principal, ya que reduce errores y acelera la entrega de material visual, que impacta directamente en la generación de ingresos.", "icon": "plane", "phase": "mvp" },
+    { "id": "priority-minimum-integrated-erp", "order": 2, "title": "ERP mínimo integrado con CRM, ventas y gestión de proyectos", "shortTitle": "ERP mínimo integrado", "description": "Conecta CRM, ventas y gestión de proyectos para ordenar el flujo desde la captación hasta la entrega.", "detail": "Permite centralizar las operaciones clave del negocio y asegurar un flujo ordenado desde la captación hasta la entrega.", "icon": "building", "phase": "mvp" },
+    { "id": "priority-image-automation", "order": 3, "title": "Automatización de imágenes", "shortTitle": "Automatización de imágenes", "description": "Acelera la producción final y mantiene consistencia en la edición.", "detail": "Ayuda a mantener consistencia en la edición y acelera la producción final de contenido.", "icon": "images", "phase": "mvp" },
+    { "id": "priority-finance-billing", "order": 4, "title": "Finanzas y facturación", "shortTitle": "Finanzas y facturación", "description": "Secuencia posterior.", "detail": "Finanzas y facturación.", "icon": "finance", "phase": "later" },
+    { "id": "priority-regulatory-compliance", "order": 5, "title": "Cumplimiento y gestión regulatoria", "shortTitle": "Cumplimiento y gestión regulatoria", "description": "Secuencia posterior.", "detail": "Cumplimiento y gestión regulatoria.", "icon": "compliance", "phase": "later" },
+    { "id": "priority-operational-executive-analytics", "order": 6, "title": "Analítica operativa y ejecutiva", "shortTitle": "Analítica operativa y ejecutiva", "description": "Secuencia posterior.", "detail": "Analítica operativa y ejecutiva.", "icon": "analytics", "phase": "later" },
+    { "id": "priority-hr-capacity", "order": 7, "title": "Recursos humanos y gestión de capacidad", "shortTitle": "Recursos humanos y gestión de capacidad", "description": "Secuencia posterior.", "detail": "Recursos humanos y gestión de capacidad.", "icon": "people", "phase": "later" },
+    { "id": "priority-advanced-ai-layer", "order": 8, "title": "Capa de inteligencia artificial avanzada", "shortTitle": "Capa de inteligencia artificial avanzada", "description": "Secuencia posterior.", "detail": "Capa de inteligencia artificial avanzada.", "icon": "ai", "phase": "later" }
   ]
 }

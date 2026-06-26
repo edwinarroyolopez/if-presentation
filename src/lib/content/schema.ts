@@ -3,6 +3,7 @@ import { z } from "zod";
 const toneSchema = z.enum(["info", "success", "warning", "danger", "neutral"]);
 const itemSchema = z.object({ id: z.string().min(1), title: z.string().min(1), description: z.string().min(1), tone: toneSchema.optional() }).strict();
 const nonEmptyStringArraySchema = z.array(z.string().min(1)).min(1);
+const roadmapIconSchema = z.enum(["plane", "building", "images", "finance", "compliance", "analytics", "people", "ai"]);
 const aiIconSchema = z.enum(["activity", "badge-check", "bar-chart", "bot", "braces", "database", "file-text", "gateway", "handshake", "image", "landmark", "list-checks", "plane", "scale", "scan-check", "shield-check", "sparkles", "user-check", "users"]);
 
 const unique = (values: string[]) => new Set(values).size === values.length;
@@ -19,7 +20,49 @@ export const navigationSchema = z.object({
 });
 
 export const homeSchema = z.object({ title: z.string().min(1), intro: z.string().min(1), systems: z.array(z.string().min(1)).min(12), parts: z.array(itemSchema).length(6), recommendation: z.string().min(1) }).strict();
-export const architectureSchema = z.object({ summary: z.string().min(1), strengths: z.array(itemSchema).length(5), risks: z.array(itemSchema).length(5), deferred: z.array(itemSchema).length(3), priorities: z.array(itemSchema).min(3) }).strict();
+const architectureDialogSchema = z.object({ label: z.string().min(1), title: z.string().min(1), eyebrow: z.string().min(1) }).strict();
+const architectureItemSchema = z.object({ id: z.string().min(1), title: z.string().min(1), shortTitle: z.string().min(1).optional(), description: z.string().min(1) }).strict();
+const architecturePrioritySchema = z.object({
+  id: z.string().min(1),
+  order: z.number().int().min(1).max(8),
+  title: z.string().min(1),
+  shortTitle: z.string().min(1),
+  description: z.string().min(1),
+  detail: z.string().min(1),
+  icon: roadmapIconSchema,
+  phase: z.enum(["mvp", "later"]),
+}).strict();
+
+export const architectureSchema = z.object({
+  sourceDocument: z.literal("docs/F1-archictecture-review.md"),
+  eyebrow: z.literal("Parte 1 · Arquitectura"),
+  title: z.literal("Revisión de arquitectura InflightOS"),
+  thesis: z.string().min(1),
+  metadata: z.array(z.string().min(1)).length(2),
+  decision: z.object({ kicker: z.string().min(1), headline: z.string().min(1), summary: z.string().min(1) }).strict(),
+  primaryRisk: z.object({ label: z.string().min(1), text: z.string().min(1) }).strict(),
+  footerInsight: z.object({ label: z.string().min(1), text: z.string().min(1), badge: z.string().min(1) }).strict(),
+  dialogs: z.object({ strengths: architectureDialogSchema, risks: architectureDialogSchema, deferred: architectureDialogSchema, priorities: architectureDialogSchema }).strict(),
+  strengths: z.array(architectureItemSchema).length(5),
+  risks: z.array(architectureItemSchema).length(5),
+  deferred: z.array(architectureItemSchema.extend({ shortTitle: z.string().min(1) })).length(3),
+  priorities: z.array(architecturePrioritySchema).length(8),
+}).strict().superRefine((value, ctx) => {
+  const checkUnique = (ids: string[], label: string) => {
+    if (!unique(ids)) ctx.addIssue({ code: "custom", message: `Duplicate architecture ${label} ids` });
+  };
+  checkUnique(value.strengths.map((item) => item.id), "strength");
+  checkUnique(value.risks.map((item) => item.id), "risk");
+  checkUnique(value.deferred.map((item) => item.id), "deferred");
+  checkUnique(value.priorities.map((item) => item.id), "priority");
+  checkUnique([...value.strengths, ...value.risks, ...value.deferred, ...value.priorities].map((item) => item.id), "global");
+
+  const orders = value.priorities.map((priority) => priority.order);
+  if (!unique(orders.map(String))) ctx.addIssue({ code: "custom", message: "Duplicate architecture priority orders" });
+  if (orders.join(",") !== "1,2,3,4,5,6,7,8") ctx.addIssue({ code: "custom", message: "Architecture priorities must be ordered 1..8" });
+  if (value.priorities.slice(0, 3).some((priority) => priority.phase !== "mvp")) ctx.addIssue({ code: "custom", message: "First three architecture priorities must be MVP" });
+  if (value.priorities.slice(3).some((priority) => priority.phase !== "later")) ctx.addIssue({ code: "custom", message: "Architecture priorities 4..8 must be later" });
+});
 const integrationContractIdSchema = z.enum(["api", "event", "job", "object"]);
 const integrationDialogIdSchema = z.enum(["business-flow", "integration-contracts", "connections-permissions", "resilience-traceability"]);
 

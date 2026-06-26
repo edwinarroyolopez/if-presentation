@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { getNavigationItems, getPresentationContent, getPreviousNext, getRouteProgress, isRouteActive } from "@/lib/content";
 import { buildCatmullRomPath, computeRoadmapLayout } from "@/components/roadmap/roadmap-layout";
 import { getRoadmapBySlug, getRoadmapProjectNavigation, getRoadmapProjects, getRoadmapStaticParams } from "@/lib/roadmaps/roadmap-registry";
-import { aiStrategySchema, dataModelingSchema, integrationSchema } from "@/lib/content/schema";
+import { aiStrategySchema, architectureSchema, dataModelingSchema, integrationSchema } from "@/lib/content/schema";
 
 describe("presentation content contract", () => {
   const content = getPresentationContent();
@@ -27,10 +27,54 @@ describe("presentation content contract", () => {
     expect(getPreviousNext("/executive-scenario/").next?.route).toBe("/inflightos/");
   });
 
-  it("keeps required architecture counts", () => {
-    expect(content.architecture.strengths).toHaveLength(5);
-    expect(content.architecture.risks).toHaveLength(5);
-    expect(content.architecture.deferred).toHaveLength(3);
+  it("keeps required architecture review contract from F1", () => {
+    const architecture = content.architecture;
+    const allowedIcons = new Set(["plane", "building", "images", "finance", "compliance", "analytics", "people", "ai"]);
+    const allIds = [...architecture.strengths, ...architecture.risks, ...architecture.deferred, ...architecture.priorities].map((item) => item.id);
+
+    expect(architecture.sourceDocument).toBe("docs/F1-archictecture-review.md");
+    expect(architecture.decision.headline).toBe("Primero, el núcleo operativo que mueve ingresos.");
+    expect(architecture.metadata).toEqual(["8 prioridades", "3 frentes MVP"]);
+    expect(architecture.strengths).toHaveLength(5);
+    expect(architecture.risks).toHaveLength(5);
+    expect(architecture.deferred).toHaveLength(3);
+    expect(architecture.priorities).toHaveLength(8);
+    expect(new Set(allIds).size).toBe(allIds.length);
+    expect(architecture.priorities.map((priority) => priority.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(architecture.priorities.slice(0, 3).every((priority) => priority.phase === "mvp")).toBe(true);
+    expect(architecture.priorities.slice(3).every((priority) => priority.phase === "later")).toBe(true);
+    expect(architecture.priorities.every((priority) => allowedIcons.has(priority.icon))).toBe(true);
+    expect(architecture.priorities.slice(0, 3).map((priority) => priority.title)).toEqual(["Automatización de vuelos", "ERP mínimo integrado con CRM, ventas y gestión de proyectos", "Automatización de imágenes"]);
+    expect(architecture.deferred.map((item) => item.title)).toEqual(["Capa de IA avanzada", "Módulos de recursos humanos y cumplimiento", "Analítica avanzada"]);
+  });
+
+  it("rejects invalid architecture review schema changes", () => {
+    const missingStrength = structuredClone(content.architecture);
+    missingStrength.strengths = missingStrength.strengths.slice(1);
+    expect(architectureSchema.safeParse(missingStrength).success).toBe(false);
+
+    const duplicateOrder = structuredClone(content.architecture);
+    duplicateOrder.priorities[1].order = 1;
+    expect(architectureSchema.safeParse(duplicateOrder).success).toBe(false);
+
+    const invalidMvp = structuredClone(content.architecture);
+    invalidMvp.priorities[2].phase = "later";
+    expect(architectureSchema.safeParse(invalidMvp).success).toBe(false);
+
+    const duplicateId = structuredClone(content.architecture);
+    duplicateId.risks[0].id = duplicateId.strengths[0].id;
+    expect(architectureSchema.safeParse(duplicateId).success).toBe(false);
+  });
+
+  it("keeps architecture review free of unsupported technical claims", () => {
+    const files = [
+      "src/data/architecture-review.json",
+      "src/modules/architecture-review/ArchitectureReviewPage.tsx",
+    ];
+    for (const file of files) {
+      const source = readFileSync(resolve(process.cwd(), file), "utf8");
+      expect(source).not.toMatch(/Monolito modular|Bounded contexts|Outbox|Scopes|Gates/);
+    }
   });
 
   it("keeps required integration blueprint content", () => {
