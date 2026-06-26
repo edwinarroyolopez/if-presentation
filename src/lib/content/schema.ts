@@ -3,6 +3,7 @@ import { z } from "zod";
 const toneSchema = z.enum(["info", "success", "warning", "danger", "neutral"]);
 const itemSchema = z.object({ id: z.string().min(1), title: z.string().min(1), description: z.string().min(1), tone: toneSchema.optional() }).strict();
 const nonEmptyStringArraySchema = z.array(z.string().min(1)).min(1);
+const aiIconSchema = z.enum(["activity", "badge-check", "bar-chart", "bot", "braces", "database", "file-text", "gateway", "handshake", "image", "landmark", "list-checks", "plane", "scale", "scan-check", "shield-check", "sparkles", "user-check", "users"]);
 
 const unique = (values: string[]) => new Set(values).size === values.length;
 
@@ -153,7 +154,53 @@ export const dataModelingSchema = z.object({
   if (!value.footerInsight.badge.includes("Sin escrituras cross-DB")) ctx.addIssue({ code: "custom", message: "Data modeling footer must preserve no cross-DB writes rule" });
   if (!value.domains.find((domain) => domain.id === "p8")?.integrityRules.some((rule) => rule.includes("La IA propone"))) ctx.addIssue({ code: "custom", message: "AI proposal rule must be explicit" });
 });
-export const aiStrategySchema = z.object({ useNow: z.array(itemSchema).min(1), postpone: z.array(itemSchema).min(1), humanSupervision: z.array(itemSchema).min(1), doNotAutomate: z.array(itemSchema).min(1), guardrails: z.array(itemSchema).min(1), promotionCriteria: z.array(z.string().min(1)).min(1) }).strict();
+const aiArchitectureStepSchema = z.object({ id: z.string().min(1), title: z.string().min(1), description: z.string().min(1), icon: aiIconSchema }).strict();
+const aiPrioritySchema = z.object({ id: z.string().min(1), title: z.string().min(1), description: z.string().min(1), authority: z.string().min(1), icon: aiIconSchema }).strict();
+const aiDomainSchema = z.object({ id: z.string().min(1), title: z.string().min(1), summary: z.string().min(1), immediateUse: z.string().min(1), authorityLimit: z.string().min(1), icon: aiIconSchema }).strict();
+const aiAuthorityLimitSchema = z.object({ id: z.string().min(1), title: z.string().min(1), description: z.string().min(1), icon: aiIconSchema }).strict();
+
+export const aiStrategySchema = z.object({
+  sourceDocument: z.literal("docs/F7-AI-strategy.md"),
+  title: z.literal("IA como copiloto, no como autoridad"),
+  thesis: z.string().min(120),
+  architecturePattern: z.object({
+    label: z.literal("Patrón recomendado"),
+    note: z.string().min(1),
+    noDirectWrite: z.string().min(1),
+    steps: z.array(aiArchitectureStepSchema).length(7),
+  }).strict(),
+  immediatePriorities: z.array(aiPrioritySchema).length(6),
+  domains: z.array(aiDomainSchema).length(8),
+  authorityPrinciple: z.string().min(1),
+  authorityLimits: z.array(aiAuthorityLimitSchema).length(7),
+  laterWithEvidence: z.object({
+    label: z.literal("Después, con evidencia"),
+    summary: z.string().min(1),
+    conditions: z.array(z.string().min(1)).length(5),
+    cases: z.array(z.string().min(1)).length(5),
+  }).strict(),
+  promotionRule: z.string().min(1),
+  productionGates: z.array(z.string().min(1)).length(10),
+  executiveRecommendation: z.array(z.string().min(1)).length(3),
+}).strict().superRefine((value, ctx) => {
+  const architectureOrder = ["authorized-data", "ai-gateway", "approved-model", "structured-output", "validation-preview", "human-review", "domain-api-audit"];
+  const priorityOrder = ["image-quality", "structured-documentation", "operational-summaries", "data-quality", "flight-planning", "finance-compliance-extraction"];
+  const domainIds = ["images", "project-documentation", "crm-sales", "analytics", "flight-planning", "compliance", "finance", "people-capacity"];
+  const limitIds = ["flight-control", "money-movement", "regulatory-decisions", "hr-decisions", "premium-deliverables", "general-erp-agents", "untraced-ai"];
+  if (value.architecturePattern.steps.map((step) => step.id).join(",") !== architectureOrder.join(",")) ctx.addIssue({ code: "custom", message: "AI architecture pattern order must match F7" });
+  if (value.immediatePriorities.map((priority) => priority.id).join(",") !== priorityOrder.join(",")) ctx.addIssue({ code: "custom", message: "AI immediate priorities must match F7 order" });
+  if (value.domains.map((domain) => domain.id).join(",") !== domainIds.join(",")) ctx.addIssue({ code: "custom", message: "AI domains must include the eight F7 domains" });
+  if (value.authorityLimits.map((limit) => limit.id).join(",") !== limitIds.join(",")) ctx.addIssue({ code: "custom", message: "AI authority limits must include the seven F7 limits" });
+  if (!value.architecturePattern.note.includes("Sin escritura directa") || !value.architecturePattern.noDirectWrite.includes("nunca debe modificar directamente")) ctx.addIssue({ code: "custom", message: "AI direct database write prohibition must be explicit" });
+  if (!value.architecturePattern.steps.find((step) => step.id === "validation-preview")?.title.includes("Validación") || !value.architecturePattern.steps.find((step) => step.id === "validation-preview")?.title.includes("preview")) ctx.addIssue({ code: "custom", message: "AI architecture must keep validation and preview explicit" });
+  if (!value.architecturePattern.steps.find((step) => step.id === "domain-api-audit")?.title.includes("API del dominio") || !value.architecturePattern.steps.find((step) => step.id === "domain-api-audit")?.title.includes("auditoría")) ctx.addIssue({ code: "custom", message: "AI architecture must keep domain API and audit explicit" });
+  for (const required of ["Histórico suficiente", "Baseline determinístico", "Métricas certificadas", "Medición del error", "Shadow mode"]) {
+    if (!value.laterWithEvidence.conditions.includes(required)) ctx.addIssue({ code: "custom", message: `Missing later evidence condition: ${required}` });
+  }
+  for (const required of ["Problema y usuario definidos", "Baseline sin IA", "Datos autorizados y con calidad", "Resultado validable", "Revisión humana", "Fallback manual", "Costo medible", "Errores reversibles", "Métricas de calidad y valor", "Owner, auditoría y rollback"]) {
+    if (!value.productionGates.includes(required)) ctx.addIssue({ code: "custom", message: `Missing AI production gate: ${required}` });
+  }
+});
 export const executiveScenarioSchema = z.object({ scenario: z.literal("La junta directiva quiere todos los módulos entregados dentro de 18 meses."), memo: z.string().min(1), accept: z.array(z.string().min(1)).min(1), negotiate: z.array(z.string().min(1)).min(1), postpone: z.array(z.string().min(1)).min(1), risks: z.array(z.string().min(1)).min(1), phases: z.array(itemSchema).min(1), metrics: z.array(itemSchema).min(1), decision: z.string().min(1) }).strict();
 
 export const presentationSchema = z.object({ navigation: navigationSchema, home: homeSchema, architecture: architectureSchema, integration: integrationSchema, dataModeling: dataModelingSchema, aiStrategy: aiStrategySchema, executiveScenario: executiveScenarioSchema }).strict();

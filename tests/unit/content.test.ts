@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { getNavigationItems, getPresentationContent, getPreviousNext, getRouteProgress, isRouteActive } from "@/lib/content";
 import { buildCatmullRomPath, computeRoadmapLayout } from "@/components/roadmap/roadmap-layout";
 import { getRoadmapBySlug, getRoadmapProjectNavigation, getRoadmapProjects, getRoadmapStaticParams } from "@/lib/roadmaps/roadmap-registry";
-import { dataModelingSchema, integrationSchema } from "@/lib/content/schema";
+import { aiStrategySchema, dataModelingSchema, integrationSchema } from "@/lib/content/schema";
 
 describe("presentation content contract", () => {
   const content = getPresentationContent();
@@ -125,9 +125,35 @@ describe("presentation content contract", () => {
     }
   });
 
-  it("keeps required AI and executive scenario content", () => {
-    expect(content.aiStrategy.useNow.length).toBeGreaterThan(0);
-    expect(content.aiStrategy.postpone.length).toBeGreaterThan(0);
+  it("keeps required AI strategy coverage from F7", () => {
+    expect(content.aiStrategy.sourceDocument).toBe("docs/F7-AI-strategy.md");
+    expect(content.aiStrategy.title).toBe("IA como copiloto, no como autoridad");
+    expect(content.aiStrategy.architecturePattern.steps.map((step) => step.id)).toEqual(["authorized-data", "ai-gateway", "approved-model", "structured-output", "validation-preview", "human-review", "domain-api-audit"]);
+    expect(content.aiStrategy.architecturePattern.note).toContain("Sin escritura directa");
+    expect(content.aiStrategy.architecturePattern.noDirectWrite).toContain("nunca debe modificar directamente");
+    expect(content.aiStrategy.immediatePriorities.map((priority) => priority.id)).toEqual(["image-quality", "structured-documentation", "operational-summaries", "data-quality", "flight-planning", "finance-compliance-extraction"]);
+    expect(content.aiStrategy.domains.map((domain) => domain.id)).toEqual(["images", "project-documentation", "crm-sales", "analytics", "flight-planning", "compliance", "finance", "people-capacity"]);
+    expect(content.aiStrategy.authorityLimits.map((limit) => limit.id)).toEqual(["flight-control", "money-movement", "regulatory-decisions", "hr-decisions", "premium-deliverables", "general-erp-agents", "untraced-ai"]);
+    expect(content.aiStrategy.laterWithEvidence.conditions).toEqual(["Histórico suficiente", "Baseline determinístico", "Métricas certificadas", "Medición del error", "Shadow mode"]);
+    expect(content.aiStrategy.productionGates).toHaveLength(10);
+    expect(content.aiStrategy.executiveRecommendation).toEqual(["Primero asistir.", "Después recomendar.", "Automatizar solamente procesos de bajo riesgo, medidos y reversibles."]);
+  });
+
+  it("rejects invalid AI strategy schema changes", () => {
+    const missingArchitectureStep = structuredClone(content.aiStrategy);
+    missingArchitectureStep.architecturePattern.steps = missingArchitectureStep.architecturePattern.steps.filter((step) => step.id !== "human-review");
+    expect(aiStrategySchema.safeParse(missingArchitectureStep).success).toBe(false);
+
+    const missingDirectWriteRule = structuredClone(content.aiStrategy);
+    missingDirectWriteRule.architecturePattern.note = "Arquitectura controlada";
+    expect(aiStrategySchema.safeParse(missingDirectWriteRule).success).toBe(false);
+
+    const missingGate = structuredClone(content.aiStrategy);
+    missingGate.productionGates = missingGate.productionGates.filter((gate) => gate !== "Owner, auditoría y rollback");
+    expect(aiStrategySchema.safeParse(missingGate).success).toBe(false);
+  });
+
+  it("keeps required executive scenario content", () => {
     expect(content.executiveScenario.scenario).toContain("18 meses");
   });
 });

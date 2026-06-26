@@ -1,30 +1,77 @@
 {
-  "useNow": [
-    { "id": "style-transfer", "title": "Transferencia de look aprobado", "description": "Aplicar criterios del sample aprobado a imágenes del mismo lote, con editor validando el resultado.", "tone": "success" },
-    { "id": "visual-qa", "title": "QA visual asistido", "description": "Detectar blur, exposición, objetos no deseados y viewpoints faltantes antes de entrega.", "tone": "success" },
-    { "id": "weather-assist", "title": "Asistencia meteorológica", "description": "Recomendar ventanas de vuelo; la decisión final queda en operaciones.", "tone": "info" },
-    { "id": "asset-metadata", "title": "Clasificación de assets", "description": "Etiquetado y búsqueda para reducir trabajo manual y mejorar trazabilidad.", "tone": "info" }
+  "sourceDocument": "docs/F7-AI-strategy.md",
+  "title": "IA como copiloto, no como autoridad",
+  "thesis": "InflightOS debe usar IA para reducir trabajo repetitivo, elevar la calidad y detectar riesgos; toda acción crítica debe pasar por datos autorizados, validación, preview, revisión humana y auditoría.",
+  "architecturePattern": {
+    "label": "Patrón recomendado",
+    "note": "Sin escritura directa a las bases de datos del ERP.",
+    "noDirectWrite": "La IA nunca debe modificar directamente las bases de datos de CRM, ERP, Vuelo, Imagen, Finanzas, Cumplimiento o Recursos Humanos.",
+    "steps": [
+      { "id": "authorized-data", "title": "Datos autorizados", "description": "Documentos y métricas gobernadas", "icon": "database" },
+      { "id": "ai-gateway", "title": "AI Gateway", "description": "Control de acceso y trazabilidad", "icon": "gateway" },
+      { "id": "approved-model", "title": "Modelo aprobado", "description": "Uso controlado por caso", "icon": "sparkles" },
+      { "id": "structured-output", "title": "Resultado estructurado", "description": "Respuesta verificable", "icon": "braces" },
+      { "id": "validation-preview", "title": "Validación + preview", "description": "Reglas antes de ejecutar", "icon": "scan-check" },
+      { "id": "human-review", "title": "Revisión humana", "description": "Aprobación responsable", "icon": "user-check" },
+      { "id": "domain-api-audit", "title": "API del dominio + auditoría", "description": "Ejecución registrada", "icon": "shield-check" }
+    ]
+  },
+  "immediatePriorities": [
+    { "id": "image-quality", "title": "Calidad y clasificación de imágenes", "description": "Detecta defectos, duplicados e inconsistencias para priorizar revisión humana.", "authority": "El sample, el perfil y el entregable final conservan aprobación humana.", "icon": "image" },
+    { "id": "structured-documentation", "title": "Documentación estructurada", "description": "Extrae requisitos, detecta faltantes y convierte información desordenada en borradores verificables.", "authority": "No activa proyectos, aprueba documentos ni compromete fechas automáticamente.", "icon": "file-text" },
+    { "id": "operational-summaries", "title": "Resúmenes operativos y ejecutivos", "description": "Sintetiza riesgos, bloqueos y variaciones usando información gobernada.", "authority": "Propone causas sin afirmar causalidad sin evidencia.", "icon": "bar-chart" },
+    { "id": "data-quality", "title": "Calidad de datos", "description": "Detecta campos faltantes, contradicciones y posibles duplicados.", "authority": "Prepara correcciones para validación, no cambia registros críticos por sí sola.", "icon": "list-checks" },
+    { "id": "flight-planning", "title": "Planificación de vuelos asistida", "description": "Recomienda ventanas, duración, riesgos y equipos candidatos.", "authority": "Piloto y Flight Operations conservan la aprobación; safety y readiness siguen determinísticos.", "icon": "plane" },
+    { "id": "finance-compliance-extraction", "title": "Extracción en Finanzas y Cumplimiento", "description": "Lee, clasifica y prepara evidencia para contratos, facturas, pólizas y permisos.", "authority": "No aprueba pagos ni declara una operación legal.", "icon": "badge-check" }
   ],
-  "postpone": [
-    { "id": "predictive-finance", "title": "Predicción financiera", "description": "Requiere historial confiable, rate cards y costos normalizados.", "tone": "warning" },
-    { "id": "general-chatbot", "title": "Chatbot general", "description": "No debe competir con el flujo operativo hasta tener casos de uso y ownership claros.", "tone": "warning" },
-    { "id": "advanced-analytics", "title": "Analítica predictiva corporativa", "description": "Primero deben existir modelos de lectura y métricas operativas consistentes.", "tone": "warning" }
+  "domains": [
+    { "id": "images", "title": "Imágenes", "summary": "Automatización y control de calidad visual.", "immediateUse": "Detectar blur, exposición extrema, archivos corruptos, duplicados, escenas, orientación, inconsistencias y quality score.", "authorityLimit": "Evaluar, clasificar y recomendar; aprobación humana para sample, perfil de procesamiento y entregable final.", "icon": "image" },
+    { "id": "project-documentation", "title": "Documentación de proyectos", "summary": "Conversión de información desordenada en documentación estructurada.", "immediateUse": "Extraer requisitos, separar hechos y supuestos, detectar faltantes o contradicciones y generar borradores de brief, hitos, riesgos y dependencias.", "authorityLimit": "No activar proyectos, aprobar documentación ni comprometer fechas automáticamente.", "icon": "file-text" },
+    { "id": "crm-sales", "title": "CRM y ventas", "summary": "Apoyo comercial para procesar información y mantener oportunidades actualizadas.", "immediateUse": "Resumir historial, extraer contactos, detectar duplicados, resumir reuniones, proponer siguiente paso y preparar seguimientos.", "authorityLimit": "No modificar etapas, valores, probabilidades ni marcar oportunidades como ganadas sin confirmación comercial.", "icon": "handshake" },
+    { "id": "analytics", "title": "Analítica operativa y ejecutiva", "summary": "Síntesis sobre métricas certificadas, no sobre datos sin gobierno.", "immediateUse": "Resumir proyectos en riesgo, lotes bloqueados, variaciones, anomalías, briefs diarios y preguntas en lenguaje natural sobre métricas certificadas.", "authorityLimit": "Debe mostrar período, métricas, fuentes, actualización, limitaciones y enlace; no afirmar causalidad sin evidencia.", "icon": "bar-chart" },
+    { "id": "flight-planning", "title": "Planificación de vuelos", "summary": "Asistencia operacional, nunca autoridad de vuelo.", "immediateUse": "Resumir clima, recomendar ventanas, estimar duración, identificar conflictos, riesgos de reprogramación, equipos candidatos e incidentes.", "authorityLimit": "Piloto y Flight Operations aprueban la misión; seguridad, cumplimiento y readiness permanecen determinísticos.", "icon": "plane" },
+    { "id": "compliance", "title": "Cumplimiento", "summary": "Lectura, clasificación y comparación documental.", "immediateUse": "Clasificar licencias, pólizas y permisos; extraer fechas, titulares, números y autoridades; preparar paquetes de evidencia.", "authorityLimit": "Compliance o asesor autorizado conserva la decisión final; la IA no declara misiones legalmente autorizadas.", "icon": "scale" },
+    { "id": "finance", "title": "Finanzas", "summary": "Reducción de tareas administrativas sin controlar dinero.", "immediateUse": "Extraer datos de contratos y órdenes de compra, detectar faltantes o duplicados, clasificar costos, proponer matching y resumir cartera.", "authorityLimit": "No aprobar solicitudes, emitir facturas, registrar pagos definitivos ni modificar datos bancarios.", "icon": "landmark" },
+    { "id": "people-capacity", "title": "Recursos Humanos y capacidad", "summary": "Comprensión de demanda y habilidades sin decisiones laborales.", "immediateUse": "Identificar brechas de skills, conflictos de capacidad, compatibilidad potencial, demanda futura, formación y concentración de conocimiento.", "authorityLimit": "Recomendaciones explicables y revisadas por managers; no usar atributos personales sensibles.", "icon": "users" }
   ],
-  "humanSupervision": [
-    { "id": "sample-approval", "title": "Aprobación de samples", "description": "Cliente/editor conservan la decisión porque define el estándar creativo.", "tone": "success" },
-    { "id": "flight-window", "title": "Selección de ventana de vuelo", "description": "La IA sugiere; operaciones valida restricciones, permisos y clima.", "tone": "info" },
-    { "id": "qc-exceptions", "title": "Excepciones de QC", "description": "Casos ambiguos escalan a editor o PM antes de reprocesar o entregar.", "tone": "warning" }
+  "authorityPrinciple": "La IA evalúa, extrae, clasifica, resume y recomienda; la autoridad crítica permanece en personas y reglas determinísticas.",
+  "authorityLimits": [
+    { "id": "flight-control", "title": "Autorizar o controlar vuelos", "description": "No autorizar despegues, iniciar misiones, controlar movimientos, ignorar alertas ni aprobar excepciones regulatorias.", "icon": "plane" },
+    { "id": "money-movement", "title": "Aprobar facturas o mover dinero", "description": "No aprobar facturas, emitir pagos, modificar cuentas, crear notas de crédito, autorizar descuentos ni tomar decisiones fiscales.", "icon": "landmark" },
+    { "id": "regulatory-decisions", "title": "Decisiones regulatorias definitivas", "description": "No interpretar normas como decisión final, declarar operaciones legales, aprobar permisos, waivers o cerrar hallazgos.", "icon": "scale" },
+    { "id": "hr-decisions", "title": "Decisiones laborales", "description": "No contratar, despedir, compensar, disciplinar, puntuar desempeño ni inferir atributos sensibles.", "icon": "users" },
+    { "id": "premium-deliverables", "title": "Entregables premium autónomos", "description": "No aprobar, modificar, publicar o entrenar con imágenes de clientes sin revisión y permiso.", "icon": "image" },
+    { "id": "general-erp-agents", "title": "Agentes con acceso general al ERP", "description": "No consultar todos los módulos, encadenar acciones críticas, cambiar permisos ni operar con credenciales amplias.", "icon": "bot" },
+    { "id": "untraced-ai", "title": "IA sin trazabilidad ni revisión", "description": "No priorizar IA sin confirmación, auditoría, límites, presupuesto, desactivación y control humano.", "icon": "activity" }
   ],
-  "doNotAutomate": [
-    { "id": "compliance", "title": "Decisiones regulatorias críticas", "description": "No automatizar aprobaciones de cumplimiento o permisos por riesgo legal.", "tone": "danger" },
-    { "id": "financial-approval", "title": "Aprobación financiera", "description": "No emitir decisiones de cobro, descuento o margen sin revisión humana.", "tone": "danger" },
-    { "id": "client-final-approval", "title": "Aprobación final del cliente", "description": "La aceptación contractual no debe depender de un modelo.", "tone": "danger" }
+  "laterWithEvidence": {
+    "label": "Después, con evidencia",
+    "summary": "Requieren histórico, baseline, métricas certificadas, error medido y shadow mode.",
+    "conditions": ["Histórico suficiente", "Baseline determinístico", "Métricas certificadas", "Medición del error", "Shadow mode"],
+    "cases": [
+      "Predicción de retrasos y reprogramaciones",
+      "Riesgo de cobro",
+      "Forecast de capacidad",
+      "Optimización de rutas",
+      "Agentes limitados con acciones supervisadas"
+    ]
+  },
+  "promotionRule": "Sin baseline, datos autorizados, validación, revisión humana, owner y rollback, el caso permanece como experimento asistido.",
+  "productionGates": [
+    "Problema y usuario definidos",
+    "Baseline sin IA",
+    "Datos autorizados y con calidad",
+    "Resultado validable",
+    "Revisión humana",
+    "Fallback manual",
+    "Costo medible",
+    "Errores reversibles",
+    "Métricas de calidad y valor",
+    "Owner, auditoría y rollback"
   ],
-  "guardrails": [
-    { "id": "dataset", "title": "Dataset propio y versionado", "description": "Datos consentidos, representativos y trazables por tipo de entregable.", "tone": "info" },
-    { "id": "baseline", "title": "Baseline contra proceso actual", "description": "Promover IA solo si supera tiempo, calidad o retrabajo actual.", "tone": "success" },
-    { "id": "fallback", "title": "Fallback manual", "description": "Cada flujo asistido debe poder completarse sin IA.", "tone": "warning" },
-    { "id": "audit", "title": "Auditoría de decisiones", "description": "Registrar versión de modelo, input relevante y reviewer humano.", "tone": "info" }
-  ],
-  "promotionCriteria": ["Calidad superior al baseline manual", "Reducción medible de horas o retrabajo", "Fallback manual disponible", "Owner operativo asignado", "Riesgo legal y contractual aceptado"]
+  "executiveRecommendation": [
+    "Primero asistir.",
+    "Después recomendar.",
+    "Automatizar solamente procesos de bajo riesgo, medidos y reversibles."
+  ]
 }

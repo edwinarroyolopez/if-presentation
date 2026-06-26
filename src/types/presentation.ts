@@ -7,6 +7,64 @@ export type ContentItem = {
   tone?: Tone;
 };
 
+export type AIStrategyIcon = "activity" | "badge-check" | "bar-chart" | "bot" | "braces" | "database" | "file-text" | "gateway" | "handshake" | "image" | "landmark" | "list-checks" | "plane" | "scale" | "scan-check" | "shield-check" | "sparkles" | "user-check" | "users";
+
+export type AIStrategyArchitectureStep = {
+  id: string;
+  title: string;
+  description: string;
+  icon: AIStrategyIcon;
+};
+
+export type AIStrategyPriority = {
+  id: string;
+  title: string;
+  description: string;
+  authority: string;
+  icon: AIStrategyIcon;
+};
+
+export type AIStrategyDomain = {
+  id: string;
+  title: string;
+  summary: string;
+  immediateUse: string;
+  authorityLimit: string;
+  icon: AIStrategyIcon;
+};
+
+export type AIStrategyAuthorityLimit = {
+  id: string;
+  title: string;
+  description: string;
+  icon: AIStrategyIcon;
+};
+
+export type AIStrategyContent = {
+  sourceDocument: "docs/F7-AI-strategy.md";
+  title: string;
+  thesis: string;
+  architecturePattern: {
+    label: string;
+    note: string;
+    noDirectWrite: string;
+    steps: AIStrategyArchitectureStep[];
+  };
+  immediatePriorities: AIStrategyPriority[];
+  domains: AIStrategyDomain[];
+  authorityPrinciple: string;
+  authorityLimits: AIStrategyAuthorityLimit[];
+  laterWithEvidence: {
+    label: string;
+    summary: string;
+    conditions: string[];
+    cases: string[];
+  };
+  promotionRule: string;
+  productionGates: string[];
+  executiveRecommendation: string[];
+};
+
 export type NavigationItem = {
   id: string;
   label: string;
@@ -132,6 +190,6 @@ export type PresentationContent = {
   architecture: { summary: string; strengths: ContentItem[]; risks: ContentItem[]; deferred: ContentItem[]; priorities: ContentItem[] };
   integration: IntegrationContent;
   dataModeling: DataModelingContent;
-  aiStrategy: { useNow: ContentItem[]; postpone: ContentItem[]; humanSupervision: ContentItem[]; doNotAutomate: ContentItem[]; guardrails: ContentItem[]; promotionCriteria: string[] };
+  aiStrategy: AIStrategyContent;
   executiveScenario: { scenario: string; memo: string; accept: string[]; negotiate: string[]; postpone: string[]; risks: string[]; phases: ContentItem[]; metrics: ContentItem[]; decision: string };
 };

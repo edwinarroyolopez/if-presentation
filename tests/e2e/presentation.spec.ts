@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const routes = ["/", "/architecture-review/", "/roadmap/", "/systems-integration/", "/data-modeling/", "/ai-strategy/", "/executive-scenario/"];
-const headings = ["InflightOS une", "Revisión de arquitectura", "Roadmap visual", "ERP como núcleo", "Ocho dominios", "IA donde existe", "18 meses sí"];
+const headings = ["InflightOS une", "Revisión de arquitectura", "Roadmap visual", "ERP como núcleo", "Ocho dominios", "IA como copiloto", "18 meses sí"];
 const projectRoutes = [
   "/roadmap/automatizacion-de-vuelos/",
   "/roadmap/erp-minimo-integrado/",
@@ -196,6 +196,49 @@ test("data modeling v2 slide and dialogs", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Abrir Gobierno e integridad" })).toBeVisible();
   const mobileNoOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
   expect(mobileNoOverflow).toBe(true);
+});
+
+test("AI strategy premium slide and dialog", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/ai-strategy/");
+  await expect(page.getByRole("heading", { name: "IA como copiloto, no como autoridad" })).toBeVisible();
+  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.getByText("Patrón recomendado")).toBeVisible();
+  await expect(page.getByText("Sin escritura directa a las bases de datos del ERP.")).toBeVisible();
+  for (const step of ["Datos autorizados", "AI Gateway", "Modelo aprobado", "Resultado estructurado", "Validación + preview", "Revisión humana", "API del dominio + auditoría"]) await expect(page.locator(".ai-architecture-strip").getByText(step, { exact: true })).toBeVisible();
+  for (const priority of ["Calidad y clasificación de imágenes", "Documentación estructurada", "Resúmenes operativos y ejecutivos", "Calidad de datos", "Planificación de vuelos asistida", "Extracción en Finanzas y Cumplimiento"]) await expect(page.locator(".ai-priority-panel").getByText(priority, { exact: true })).toBeVisible();
+  for (const limit of ["Autorizar o controlar vuelos", "Aprobar facturas o mover dinero", "Decisiones regulatorias definitivas", "Decisiones laborales", "Entregables premium autónomos", "Agentes con acceso general al ERP", "IA sin trazabilidad ni revisión"]) await expect(page.locator(".ai-authority-panel").getByText(limit, { exact: true })).toBeVisible();
+  await expect(page.getByText("Después, con evidencia")).toBeVisible();
+  await expect(page.getByText("Sin baseline, datos autorizados, validación, revisión humana, owner y rollback")).toBeVisible();
+
+  const noInternalOverflow = await page.locator(".presentation-slide-body").evaluate((body) => body.scrollHeight <= body.clientHeight + 1);
+  expect(noInternalOverflow).toBe(true);
+  const noHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  expect(noHorizontalOverflow).toBe(true);
+
+  const action = page.getByRole("button", { name: /Ver detalle/ });
+  await action.focus();
+  await expect(action).toBeFocused();
+  await action.click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  for (const domain of ["Imágenes", "Documentación de proyectos", "CRM y ventas", "Analítica operativa y ejecutiva", "Planificación de vuelos", "Cumplimiento", "Finanzas", "Recursos Humanos y capacidad"]) await expect(page.getByRole("dialog")).toContainText(domain);
+  for (const gate of ["Problema y usuario definidos", "Baseline sin IA", "Datos autorizados y con calidad", "Resultado validable", "Revisión humana", "Fallback manual", "Costo medible", "Errores reversibles", "Métricas de calidad y valor", "Owner, auditoría y rollback"]) await expect(page.getByRole("dialog")).toContainText(gate);
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Escape");
+  await expect(action).toBeFocused();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/ai-strategy/");
+  await expect(page.getByRole("heading", { name: "IA como copiloto, no como autoridad" })).toBeVisible();
+  await expect(page.locator("h1")).toHaveCount(1);
+  const mobileNoOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  expect(mobileNoOverflow).toBe(true);
+  await page.getByRole("button", { name: /Ver detalle/ }).click();
+  await expect(page.getByRole("dialog")).toContainText("Diez gates para producción");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
 test("roadmap portfolio and project routes", async ({ page }) => {

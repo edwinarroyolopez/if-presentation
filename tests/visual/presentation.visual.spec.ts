@@ -7,6 +7,7 @@ const roadmapArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentati
 const slideArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-slide-experience/visual");
 const systemsIntegrationArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-systems-integration/visual");
 const dataModelingArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-data-modeling/visual");
+const aiStrategyArtifactDir = resolve(process.cwd(), "../ai/artifacts/if-presentation-ai-strategy/visual");
 const shots = [
   ["/", "home-desktop.png"],
   ["/architecture-review/", "architecture-desktop.png"],
@@ -17,7 +18,7 @@ const shots = [
   ["/executive-scenario/", "executive-desktop.png"],
 ] as const;
 
-test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); mkdirSync(systemsIntegrationArtifactDir, { recursive: true }); mkdirSync(dataModelingArtifactDir, { recursive: true }); });
+test.beforeAll(() => { mkdirSync(artifactDir, { recursive: true }); mkdirSync(roadmapArtifactDir, { recursive: true }); mkdirSync(slideArtifactDir, { recursive: true }); mkdirSync(systemsIntegrationArtifactDir, { recursive: true }); mkdirSync(dataModelingArtifactDir, { recursive: true }); mkdirSync(aiStrategyArtifactDir, { recursive: true }); });
 
 for (const [route, file] of shots) {
   test(`captures ${file}`, async ({ page }) => {
@@ -150,6 +151,33 @@ test("captures data modeling required evidence", async ({ page }) => {
   await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "data-modeling-keyboard-focus.png") });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.screenshot({ fullPage: true, path: resolve(dataModelingArtifactDir, "data-modeling-reduced-motion.png") });
+});
+
+test("captures AI strategy required evidence", async ({ page }) => {
+  for (const viewport of [
+    { width: 1920, height: 1080, name: "after-desktop-1920x1080.png" },
+    { width: 1366, height: 768, name: "after-desktop-1366x768.png" },
+    { width: 1280, height: 720, name: "after-desktop-1280x720.png" },
+  ]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/ai-strategy/");
+    await page.screenshot({ fullPage: true, path: resolve(aiStrategyArtifactDir, viewport.name) });
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/ai-strategy/");
+  await page.screenshot({ fullPage: true, path: resolve(aiStrategyArtifactDir, "after-mobile-390x844.png") });
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/ai-strategy/");
+  await page.getByRole("button", { name: /Ver detalle/ }).click();
+  await page.screenshot({ fullPage: true, path: resolve(aiStrategyArtifactDir, "detail-dialog-desktop.png") });
+  await page.keyboard.press("Escape");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/ai-strategy/");
+  await page.getByRole("button", { name: /Ver detalle/ }).click();
+  await page.screenshot({ fullPage: true, path: resolve(aiStrategyArtifactDir, "detail-dialog-mobile.png") });
 });
 
 test("captures roadmap portfolio states", async ({ page }) => {
